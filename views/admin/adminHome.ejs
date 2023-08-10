@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Home</title>
+    <%- include('../partials/dependencies') %>
+</head>
+<body>
+    <header>
+        <%- include('../partials/admin-header') %>
+    </header>
+    <section>
+
+    </section>
+    <div class="main_container d-flex justify-content-evenly" style="    align-items: center;
+    flex-flow: wrap;
+    height: 100dvh;">
+        <div  class="card w-25 m-2">
+            <div class="card-body">
+                <h5 class="card-title"><span>Total Users:<%= TotalCount %></span></h5>
+                <hr>
+                <h5 class="card-subtitle mb-2 text-body-secondary">Employees:&nbsp;<span><%= employeecount %></span></h5>
+                <h5 class="card-subtitle mb-2 text-body-secondary">Trainer:&nbsp;<span><%= trainercount %></span></h5>
+                <h5 class="card-subtitle mb-2 text-body-secondary">Admin:&nbsp;<span><%= admincount %></span></h5>
+            </div>
+         </div>
+        <% for( let index=0; index < data.length; index++ ) { %>
+            <div class="card w-25 m-2">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <%= data[index].AssementName %>
+                    </h5>
+                    <hr>
+                    <h6 class="card-subtitle mb-2 text-body-secondary">
+                        <%= data[index].Description %>
+                    </h6>
+                    <p class="card-text"><b>Date:</b>
+                        <%= data[index].CreatedOn %>
+                    </p>
+                    <p class="card-text"><b>Duration:</b>
+                        <%= data[index].Duration %>.mins
+                    </p>
+                    </p>
+                    <p class="card-text"><b>Key:</b>
+                        <%= data[index].AssesmentKey %>
+                    </p>
+                    <a href="#" class="card-link">View more...</a>
+                </div>
+            </div>
+            <% } %>
+    </div>
+
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
+</body>
+</html>

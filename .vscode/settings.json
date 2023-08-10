@@ -1,0 +1,20 @@
+{
+    "cSpell.words": [
+        "Quadgen"
+    ],
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "root",
+            "database": "quadgenassesmentportal",
+            "username": "root",
+            "password": "ajith001"
+        }
+    ]
+}

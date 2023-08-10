@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainer Home</title>
+    <%- include('../partials/dependencies') %>
+</head>
+
+<body>
+    <header>
+        <%- include('../partials/trainer-header') %>
+    </header>
+    <div class="main_container justify-content-md-center">
+        <div class="d-flex justify-content-md-center flex-wrap">
+            <% for( let index=0; index < data.length; index++ ) { %>
+                <div class="card m-2 localCard">
+                    <div class="card-body">
+                        <h5 class="card-title btn <% if(data[index].status=="Draft"){%>btn-info<%}else{%>btn-warning<%} %> rounded-pill">
+                            <%= data[index].AssessmentName %>
+                        </h5>
+                        <!-- <h6 class="card-subtitle mb-2 text-body-secondary rounded-pill">
+                        <%= data[index].Description %>
+                    </h6> -->
+                         <p class="card-text"><b>Status:</b>
+                            <%= data[index].status %>
+                        </p> 
+                        <p class="card-text"><b>Duration:</b>
+                            <%= data[index].Duration %> min.
+                        </p>
+                        <p class="card-text"><b>Total Score:</b>
+                            <%= data[index].MaximumScore %>
+                        </p>
+                        </p>
+                        <p class="card-text"><b>Key:</b>
+                            <%= data[index].AssesmentKey %>
+                        </p>
+                    </div>
+                    <div class="card-footer text-body-secondary d-flex justify-content-between align-center">
+                        <a class="btn btn-outline-primary position-relative m-1 "
+                            href="/Trainer/viewResponces?AssessmentID=<%= data[index].AssessmentID %>">
+                            Responses
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ">
+                                <%= data[index].ResponseCount %>
+
+                            </span>
+                        </a>
+
+                        <!-- <a href="/Trainer/editAssessment?AssesmentKey=<%= data[index].AssesmentKey %>"
+                            class="btn btn-outline-secondary m-1">Edit <i class="bi bi-pencil-square"></i></a> -->
+
+                        <a href="/Trainer/viewAssessment?AssesmentKey=<%= data[index].AssesmentKey %>"
+                            class="btn btn-outline-info m-1">Preview <i class="bi bi-eye"></i></a>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+<!--        
+                    <section id="notification-tab">
+                        <div class="notification-area">
+                            <p>Notification</p>
+                        </div>
+                    </section> -->
+       
+                </div>
+
+
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
+
+</body>
+<%- include('../partials/dependencies-js') %>
+
+</html>

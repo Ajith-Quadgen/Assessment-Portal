@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Home </title>
+    <%- include('../partials/dependencies') %>
+</head>
+
+<body>
+    <header>
+        <%- include('../partials/employee-header') %>
+    </header>
+    <%- include('../partials/dependencies-js') %>
+
+        <div class="main_container d-flex justify-content-evenly">
+
+            <div class="card m-2">
+                <div class="card-body">
+                    <h5 class="card-title">Take the Assessment</h5>
+                    <hr>
+                    <form action="/ExamHall" method="post" id="AssessmentEntryForm" target="_blank">
+                        <input type="text" name="AssesmentKey" id="AssesmentKey" class="form-control"
+                            placeholder="Enter the Assessment Key" required
+                            onkeydown="if (event.keyCode == 13) return false">
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-primary rounded-pill m-2"
+                                id="takeassmentbtn">Take Assessment&nbsp;
+                                <i class="bi bi-arrow-right-circle-fill"></i></button>
+                            <p class="btn btn-outline-secondary rounded-pill m-2" data-bs-toggle="modal"
+                                data-bs-target="#Requestmodel">Retake Assessment&nbsp;
+                                <i class="bi bi-question-circle-fill"></i>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+                <div class="card w-90 m-2">
+                    <div class="card-body bg-secondary bg-gradient text-white" role="alert">
+                        <h6>Instruction</h6>
+                        <hr>
+                        <ul>
+                            <!-- <li>After entering the full screen don't switch to another Windows system will automatically
+                                submit the assessment.</li> -->
+                            <li>After Starting the Assessment don't switch to another Windows don't try to use dual
+                                screen, system will automatically
+                                submit the assessment.</li>
+                            <li>This assessment is time bound and if not submitted within the allotted time, then it
+                                will be auto submitted.</li>
+                            <li>You are allowed to submit only once, make sure that you have correctly attempted all the
+                                questions before submission.</li>
+                            <li>All questions are compulsory.</li>
+                            <li>Any difficulties while appearing for the Assessment please contact your Trainer.</li>
+                            <li>Ensure all other applications, software's including Teams must be closed at the back
+                                end. Ensure all the notifications are disabled. If any notifications pop up, this
+                                assessment will be auto submitted.</li>
+                            <li style="color: yellow;"><b>If any participant found doing any malpractices or sabotaging
+                                    the assessment will be immediately asked to submit this assessment.</b></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
+                    tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5 text-warning" id="staticBackdropLabel"><i
+                                        class="bi bi-exclamation-triangle"></i>&nbsp;Warning</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="form-label" id="model_message">Please Maximize Your Browser or Exit from Dual
+                                    Screen
+                                    to Take up the Assessment</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--AIP Request Modal -->
+                <div class="modal fade" id="Requestmodel" data-bs-backdrop="static" data-bs-keyboard="false"
+                    tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                        <div class="modal-content ">
+                            <div class="modal-header">
+                                <h3 class="modal-title fs-5" id="staticBackdropLabel">Send a Request to Your Trainer
+                                </h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="requestAssessmentKey" placeholder="key">
+                                    <label for="requestAssessmentKey">Assessment Key</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="requestAssessmentDesc" cols="50"
+                                        spellcheck="true" placeholder="Message"></textarea>
+                                    <label for="requestAssessmentDesc">Message</label>
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                    id="repeatRequest-btn">Send &nbsp;<i class="bi bi-send-fill"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!--API Responce Modal -->
+                <div class="modal fade" id="APIResponceModel" data-bs-backdrop="static" data-bs-keyboard="false"
+                    tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5 text-primary" id="staticBackdropLabel"><i
+                                        class="bi bi-exclamation-triangle"></i>&nbsp;Assessment Details</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-2">
+                                    <div class=" input-group mb-3">
+                                        <span class="input-group-text" for="AssessmentTitle">Title</span>
+                                        <input type="text" class="form-control" id="AssessmentTitle"
+                                            placeholder="Title Of the Assessment" required readonly>
+                                    </div>
+                                    <!-- <div class=" input-group mb-3">
+                                        <span class="input-group-text" for="AssessmentDescriptinon">Description</span>
+                                        <input type="text" class="form-control" id="AssessmentDescriptinon"
+                                            placeholder="Description Of the Assessment" readonly>
+                                    </div> -->
+                                </div>
+                                <div class="row g-2">
+                                    <!-- <div class="col-md">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text" for="AssessmentDate">Date</span>
+                                            <input type="text" name="AssessmentDate" id="AssessmentDate"
+                                                class="form-control" required readonly>
+                                        </div>
+                                    </div> -->
+                                    <div class="col-md">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text" for="AssessmentTotalMarks">Total Score</span>
+                                            <input type="number" name="AssessmentTotalMarks" id="AssessmentTotalMarks"
+                                                class="form-control" value="" min="0" required readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md">
+                                        <div class=" input-group mb-3">
+                                            <span class="input-group-text" for="AssessmentDuration">Duration</span>
+                                            <input type="number" name="AssessmentDuration" id="AssessmentDuration"
+                                                class="form-control" min="5" max="180" required placeholder="Min 5"
+                                                readonly>
+                                            <span class="input-group-text">Min</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md">
+                                        <div class=" input-group mb-3">
+                                            <span class="input-group-text" for="TrainerName">Trainer</span>
+                                            <input type="text" name="TrainerName" id="TrainerName" class="form-control"
+                                                required readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="agreecheckbtn">
+                                        <label class="form-check-label" for="agreecheckbtn">
+                                            I Understood the Instruction
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" id="nextbtn" disabled>Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <% if (message) { %>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            document.getElementById("model_message").innerText = atob(JSON.parse('<%- JSON.stringify(message) %>'));
+                            document.getElementById("staticBackdropLabel").innerHTML = '<i class="bi bi-info-circle"></i>&nbsp; Info'
+                            $("#staticBackdrop").modal('show');
+                        });
+                    </script>
+                    <% } %>
+            </div>
+        </div>
+
+</body>
+<footer>
+    <%- include('../partials/footer') %>
+</footer>
+<script>
+    let trainerID;
+    document.getElementById("AssessmentEntryForm").addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (crossCheckScreenSize()) {
+            document.getElementById("AssessmentEntryForm").submit();
+        } else {
+            $("#staticBackdrop").modal('show');
+        }
+    });
+    $('#agreecheckbtn').click(function () {
+        if ($(this).is(':checked')) {
+            $('#nextbtn').removeAttr('disabled');
+        } else {
+            $('#nextbtn').attr('disabled', 'disabled');
+        }
+    });
+    document.getElementById("takeassmentbtn").addEventListener('click', async (e) => {
+        let Key=document.getElementById("AssesmentKey").value;
+        console.log(AssesmentKey);
+        if (crossCheckScreenSize()) {
+            await axios.get('/api/AssessmentDetails', {
+                params: {
+                    AssesmentKey:Key,
+                }
+            }).then(res => {
+                if (res.status == 200) {
+                    trainerID = res.data.CreatedBy;
+                    document.getElementById("AssessmentTitle").value = res.data.AssessmentName;
+                    //document.getElementById("AssessmentDescriptinon").value=res.data.Description;
+                    //document.getElementById("AssessmentDate").value = res.data.AssessmentDate;
+                    document.getElementById("AssessmentTotalMarks").value = res.data.MaximumScore;
+                    document.getElementById("AssessmentDuration").value = res.data.Duration;
+                    document.getElementById("TrainerName").value = res.data.employeeName;
+                    $("#APIResponceModel").modal('show');
+                }
+            }).catch(e => {
+                    console.log(e);
+                    alert(e.response.data);
+                    document.getElementById("AssesmentKey").value = null;
+                    document.getElementById("AssesmentKey").focus();
+                })
+        } else {
+            $("#staticBackdrop").modal('show');
+        }
+    });
+
+    document.getElementById("repeatRequest-btn").addEventListener('click', (e) => {
+        let assKey = document.getElementById("requestAssessmentKey").value;
+        let message = document.getElementById("requestAssessmentDesc").value
+        if (assKey.length === 30 && message.length > 10) {
+            axios.get('/api/reattempt-request', {
+                params: {
+                    key: assKey,
+                    msg: message
+                }
+            }).then(res => {
+                if (res.status == 200) {
+                    alert("Your request has been submitted to your trainer\nYou can take up the assessment once it`s get approved.");
+                }
+            }).catch(e => {
+                    alert(e.response.data);
+                    document.getElementById("AssesmentKey").value = null;
+                    document.getElementById("AssesmentKey").focus();
+                })
+        } else {
+            alert("Invalid assessment key");
+            $("#Requestmodel").modal('show');
+        }
+    });
+
+    document.getElementById("nextbtn").addEventListener('click', () => {
+        $("#APIResponceModel").modal('hide');
+        document.getElementById("AssessmentEntryForm").submit();
+    })
+</script>
+
+</html>

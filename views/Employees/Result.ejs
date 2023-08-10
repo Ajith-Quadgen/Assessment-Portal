@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <meta http-equiv="refresh" content="10;url=/login" /> -->
+  <title>Result</title>
+  <%- include('../partials/dependencies') %>
+</head>
+
+<%- include('../partials/employee-header') %>
+
+  <body>
+    <section class="result-section main_container " style="display: flex;
+    align-items: center;
+    justify-content: center;
+    ">
+<% if (Result.Result=="Cleared") { %>
+
+  <div class="text-center result-card result-card-pass d-flex flex-column ">
+    <div class="emoji-smile">
+      <div class="face">
+        <div class="eyebrow-left"></div>
+        <div class="eyebrow-right"></div>
+        <div class="eye-left"></div>
+        <div class="eye-right"></div>
+        <div class="mouth-happy"></div>
+      </div>
+    </div>
+    <h1 class="animate-charcter">
+      <b>Congratulations</b>,<br> You have Passed with Flying Colors.
+    </h1>
+    <h5>Total Score:<%= Result.TotalScore%>
+    </h5>
+    <h5>Percentage:<%= Result.SecuredPercentage%>
+    </h5>
+    <a href="/login" class="btn btn-outline-dark rounded-pill"><i class="bi bi-arrow-left-circle-fill"></i> Go Back To Home</a>
+  </div>
+  <% } %>
+<% if (Result.Result=="Not Cleared") { %>
+  <div class="text-center result-card result-card-fail d-flex flex-column ">
+    <div class="emoji-sad">
+      <div class="face">
+        <div class="eyebrow-left"></div>
+        <div class="eyebrow-right"></div>
+        <div class="eye-left"></div>
+        <div class="eye-right"></div>
+        <div class="mouth-sad"></div>
+      </div>
+    </div>
+    <h1 class="animate-charcter">
+     <b>Unfortunately</b>,<br> You have not met the passing criteria for the exam.
+    </h1>
+    <h5>Total Score:<%= Result.TotalScore%>
+    </h5>
+    <h5>Percentage:<%= Result.SecuredPercentage%>
+    </h5>
+    <a href="/login" class="btn btn-outline-dark rounded-pill"><i class="bi bi-arrow-left-circle-fill"></i> Go Back To Home</a>
+  </div>
+
+  <% } %>
+    </section>
+  </body>
+  <%- include('../partials/dependencies-js') %>
+
+</html>

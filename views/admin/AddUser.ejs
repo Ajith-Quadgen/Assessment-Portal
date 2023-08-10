@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User</title>
+    <%- include('../partials/dependencies') %>
+</head>
+<body>
+    <header>
+        <%- include('../partials/admin-header') %>
+    </header>
+<main class="main_container" style="width: 70% !important;">
+<form action="/Admin/addUser" method="post">
+    <h3>Add New Employee</h3>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="empIDInput" placeholder="empIDInput" name="empId" required>
+        <label for="empIDInput">Employee ID</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="nameinput" placeholder="nameinput" name="employeeName" required>
+        <label for="nameinput">Full Name</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input type="email" class="form-control" id="emailInput" placeholder="emailInput" name="email" required>
+        <label for="emailInput">Email</label>
+      </div>
+      <div class="form-floating mb-3">
+      <select id="roleInput" class="form-select" name="role" required>
+        <option value="">Select Role</option>       
+        <option value="Admin">Admin</option>
+         <option value="Trainer">Trainer</option>
+          <option value="Employee">Employee</option>
+       </select>
+    </div>
+    <button type="submit" class="btn btn-secondary">Add</button>
+
+</form>
+</main>
+<%- include('../partials/dependencies-js') %>
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
+</body>
+</html>
