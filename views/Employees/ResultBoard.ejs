@@ -58,7 +58,10 @@
                                 <%= Data[index].remarks %>
                             </td>
                             <td>
-                                <a href="#"><span>View...  <i class="bi bi-file-earmark-arrow-down-fill"></i></span></a>
+                                <% if (Data[index].certificate) { %>
+                                    <a href="../../public/Generated/Certificates/<%= Data[index].certificate %>"><span>View...  <i class="bi bi-file-earmark-arrow-down-fill"></i></span></a>
+   
+                                <% } %>
                             </td>
                         </tr>
                         <% } %>

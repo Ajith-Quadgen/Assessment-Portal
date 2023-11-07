@@ -12,8 +12,15 @@
 
     <body>
         <div class="main_container">
-            <div class="d-flex w-100">
-                <table class="table table-hover m-2 AVRTable table-striped caption-top">
+            <input type="hidden" name="AssessmentID" id="AssessmentID" value="<%= AssID %>">
+            <div class="d-flex w-100  justify-content-center align-items-center flex-column">
+                
+                <% if (Object.values(Data).length>0) { %>
+                    <div>
+                        <button type="button" class="btn btn-outline-primary" id="DownloadResponec">Download <i class="bi bi-cloud-download"></i></button>
+                </div>
+                    <% } %>
+                <table class="table table-hover m-2 AVRTable table-striped caption-top rounded-4 overflow-hidden">
                     <thead class="table-dark">
                         <tr>
                             <th scope="col"> Sl.No</th>
@@ -23,6 +30,7 @@
                             <th scope="col">Percentage</th>
                             <th scope="col">Result</th>
                             <th scope="col">Remarks</th>
+                            <th scope="col">View Response</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -50,6 +58,15 @@
                                     <td>
                                         <%= Data[index].Remarks %>
                                     </td>
+                                    <td>
+                                        <% if ( Data[index]["Report"]) { %>
+
+                                            <a href="../../public/Generated/AssessmentReport/<%= Data[index][" Report"]
+                                                %>" target="_blank">Download</a>
+
+                                            <% } %>
+                                    </td>
+
                                 </tr>
                                 <% } %>
                                     <% } else { %>
@@ -93,9 +110,54 @@
                                         <% } %>
                     </tbody>
                 </table>
-            </div>
-        </div>
     </body>
+
     <%- include('../partials/dependencies-js') %>
+        <script>
+            document.getElementById("DownloadResponec").addEventListener('click', () => {
+                axios.get('/api/DownloadAssessmentReport', {
+                    params: {
+                        AssessID: document.getElementById("AssessmentID").value
+                    },
+                    responseType: 'blob'
+                }).then(res => {
+                    var data = new Blob([res.data]);
+                    if (typeof window.navigator.msSaveBlob === 'function') {
+                        // If it is IE that support download blob directly.
+                        window.navigator.msSaveBlob(data, defaultFilename);
+                    } else {
+                        var blob = data;
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = `${Date.now().toLocaleString()}`+"XYZ.xlsx";
+
+                        document.body.appendChild(link);
+
+                        link.click(); // create an <a> element and simulate the click operation.
+                    }
+                })
+                    .catch(e => {
+                        console.log(e);
+                        alert("An Error Occurred while generating PDF");
+                    })
+            });
+
+            function downloadPdfFromBase64(base64String, fileName) {
+                const binaryString = btoa(unescape(encodeURIComponent(base64String)))
+                const uint8Array = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    uint8Array[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([uint8Array], { type: "application/pdf" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        </script>
 
 </html>

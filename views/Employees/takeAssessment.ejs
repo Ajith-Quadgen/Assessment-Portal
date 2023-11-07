@@ -8,7 +8,15 @@
   <title>Assessment Hall</title>
   <%- include('../partials/dependencies') %>
 </head>
-<%- include('../partials/employee-header') %>
+<% if (user=="Employee") { %>
+  <%- include('../partials/employee-header') %>
+<% }else if(user=="Trainer"){%>
+  <%- include('../partials/trainer-header') %>
+<% }else{%>
+  <%- include('../partials/header') %>
+
+<% } %>
+
 
   <body>
     <style>
@@ -72,7 +80,7 @@
                 <div class=" input-group mb-3">
                   <span class="input-group-text" for="AssessmentDuration">Cut-Off</span>
                   <input type="number" name="AssessmentCutoff" id="AssessmentCutoff" class="form-control" min="40"
-                    max="100" required placeholder="Min 40%" value="<%= jsonData.Cutoff %>">
+                    max="100" required placeholder="Min 40%" value="<%= jsonData.Cutoff %>" readonly>
                   <span class="input-group-text">%</span>
                 </div>
               </div>

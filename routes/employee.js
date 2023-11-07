@@ -40,6 +40,7 @@ employee_router.get('/', (req, res) => {
               result.Result = temp.Result;
               result.percentage = temp.SecuredPercentage;
               result.detailedResult = record.obtainedmarks;
+              result.certificate=record.certificate;
               ConsolidatedResult.push(result);
               counter++;
               if (counter === resultOne.length) {

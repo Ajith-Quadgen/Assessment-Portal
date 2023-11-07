@@ -88,10 +88,12 @@ trainer_router.get('/viewResponces', (req, res) => {
             result = {};
             result.SubmittedDate = formatDateString(record.date);
             let temp = JSON.parse(record.obtainedmarks);
+            result.ID=record.idresponces;
             result.EmployeeName = resultTwo[0].employeeName;
             result.SecuredMarks = temp.TotalScore;
             result.SecuredPercentage = temp.SecuredPercentage;
             result.Result = temp.Result;
+            result.Report=record.report;
             if (record.remarks) {
               result.Remarks = record.remarks;
             } else {
@@ -100,12 +102,12 @@ trainer_router.get('/viewResponces', (req, res) => {
             ConsolidatedResponces.push(result);
             counter++;
             if (counter === resultOne.length) {
-              res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces });
+              res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces,AssID:req.query.AssessmentID });
             }
           });
         });
       } else {
-        res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces });
+        res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces,AssID:"" });
 
       }
 
@@ -128,6 +130,20 @@ trainer_router.get('/Reappear-Request',(req,res)=>{
     res.redirect('/login');
   }
 });
+
+trainer_router.get('/TakeAssessment',(req,res)=>{
+  if (req.session.UserID && req.session.UserRole == "Trainer") {
+    let message;
+    if (req.query.message != undefined && req.query.message != "") {
+      message = req.query.message;
+      res.render('../views/Trainer/T_ExamHall', { message: message,user:"Trainer" });
+    } else {
+      res.render('../views/Trainer/T_ExamHall', { message: null,user:"Trainer" });
+    }
+  } else {
+    res.redirect('/login');
+  }
+})
 
 trainer_router.get("*",(req,res)=>{
   res.status(404).send("Invalid Request")

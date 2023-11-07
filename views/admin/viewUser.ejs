@@ -108,6 +108,7 @@
     </main>
     <%- include('../partials/dependencies-js') %>
     <script>
+        
         function updateStatusAPI(id, newStatus) {
             axios.post('/api/updateUserStatus', {
                 params: {
@@ -124,6 +125,7 @@
                     alert("Unable to Update the Status...\nPlease Contact Admin");
                 })
         }
+
         function updateContentArea(data) {
                 if (data.length>0) {
                         $('#content-area').empty();

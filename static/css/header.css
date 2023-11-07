@@ -44,9 +44,9 @@ nav {
     left: 0;
     right: 0;
     top: 0;
-    height: 90px;
+    height: 65px;
     background: linear-gradient(120deg, #ffffff, #eff5ff, #dfebff, #cee1ff, #bdd7ff, #abcdff, #97c3ff, #82baff);
-    padding: 0 5%;
+    padding: 0 1%;
     box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
 }
 
@@ -59,8 +59,8 @@ nav .logo {
 }
 
 .logo>img {
-    width: 65px;
-    height: 75px;
+    width: 50px;
+    height: 60px;
 }
 
 nav .links {
@@ -80,8 +80,8 @@ nav .links li {
 
 nav .links a {
     display: block;
-    padding: 1em;
-    font-size: 16px;
+    padding: 0.5em;
+    font-size: 12px;
     font-weight: bold;
     color: #000000;
     text-decoration: none;
@@ -352,14 +352,19 @@ nav .icon-burger .line {
     }
 }
 
-footer {
-    width: 100%;
-    bottom: 0;
-    height: 30px;
-    position: absolute;
-    text-align: right;
-    display: flex;
-    align-items: end;
-    justify-content: right;
+ /* Add CSS styles for the loading animation */
+ #loading-spinner {
+    display: none;
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 50px auto;
+  }
 
-}
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
