@@ -4,9 +4,10 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '@Quadgen23',
-   // password: '@Renu001',
-    //database: 'assessment',    
-     database: 'assessment-testing-db',
+    database: 'assessment-testing-db',
+    // password: '@Renu001',
+    // database: 'assessment',    
+
     multipleStatements: true
   });
 

@@ -25,6 +25,8 @@ app.use(bodyParser.json())
 app.engine('html', require('ejs').renderFile);
 app.set("view engine", "ejs");
 app.use(express.static(`${__dirname}`));
+app.use(express.static('public'))
+app.use('/public',express.static('public'))
 app.use(session({
   resave: false,
   saveUninitialized: true,
