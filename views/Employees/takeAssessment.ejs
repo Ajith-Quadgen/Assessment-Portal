@@ -8,314 +8,408 @@
   <title>Assessment Hall</title>
   <%- include('../partials/dependencies') %>
 </head>
-<% if (user=="Employee") { %>
-  <%- include('../partials/employee-header') %>
-<% }else if(user=="Trainer"){%>
-  <%- include('../partials/trainer-header') %>
-<% }else{%>
-  <%- include('../partials/header') %>
-
-<% } %>
 
 
-  <body>
-    <style>
-      #progressBar {
-        width: 99%;
-        margin: 10px auto;
-        height: 22px;
-        background-color: #fff;
-        border-radius: 30px;
-        position: sticky;
-      }
 
-      #progressBar div {
-        /* transition: all 0.2s ease-in; */
-        height: 100%;
-        text-align: right;
-        padding: 0 10px;
-        line-height: 22px;
-        width: 0;
-        transition: all 0.1s linear;
-        -webkit-animation-timing-function: linear;
-        /* Chrome, Safari, Opera */
-        animation-timing-function: linear;
-        background-color: #cbea00;
-        box-sizing: border-box;
-        border-radius: 30px;
-        box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
-      }
-    </style>
-    <div class="main_container justify-content-md-center" id="sheet">
-      <div class="child" id="main">
-        <div class="row g-2">
-          <div class="col-md">
-            <div class=" input-group mb-3">
-              <span class="input-group-text" for="AssessmentTitle">Title</span>
-              <input type="text" class="form-control" id="AssessmentTitle" placeholder="<%= jsonData.Title %>" readonly>
-            </div>
-            <div class=" input-group mb-3">
-              <span class="input-group-text" for="AssessmentDescriptinon">Description</span>
-              <input type="text" class="form-control" id="AssessmentDescriptinon"
-                placeholder="<%= jsonData.Description %>" readonly>
-            </div>
+<body>
+  <style>
+    #progressBar {
+      width: 99%;
+      margin: 10px auto;
+      height: 22px;
+      background-color: #fff;
+      border-radius: 30px;
+      position: sticky;
+    }
+
+    #progressBar div {
+      /* transition: all 0.2s ease-in; */
+      height: 100%;
+      text-align: right;
+      padding: 0 10px;
+      line-height: 22px;
+      width: 0;
+      transition: all 0.1s linear;
+      -webkit-animation-timing-function: linear;
+      /* Chrome, Safari, Opera */
+      animation-timing-function: linear;
+      background-color: #cbea00;
+      box-sizing: border-box;
+      border-radius: 30px;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+    }
+  </style>
+  <div class="main_container justify-content-md-center" id="sheet" style="top: 0px;">
+    <div class="child mb-1" id="main">
+      <div class="row g-2 position-sticky fixed-top z-3 bg-white">
+        <div class="col-md">
+          <div class=" input-group mb-3">
+            <span class="input-group-text" for="AssessmentTitle">Title</span>
+            <input type="text" class="form-control" id="AssessmentTitle" placeholder="<%= jsonData.Title %>" readonly>
           </div>
-          <div class="col-md">
-            <!-- <div class="input-group mb-3">
+          <div class=" input-group mb-3">
+            <span class="input-group-text" for="AssessmentDescriptinon">Description</span>
+            <input type="text" class="form-control" id="AssessmentDescriptinon"
+              placeholder="<%= jsonData.Description %>" readonly>
+          </div>
+        </div>
+        <div class="col-md">
+          <!-- <div class="input-group mb-3">
               <span class="input-group-text" for="AssessmentDate">Date</span>
               <input type="date" name="AssessmentDate" id="AssessmentDate" class="form-control" min="yyyy-mm-dd"
                 value="<%= jsonData.Date %>" readonly>
             </div> -->
-            <div class="row">
-              <div class="col-md">
-                <div class=" input-group mb-3">
-                  <span class="input-group-text" for="AssessmentDate">Duration</span>
-                  <input type="number" name="AssessmentDate" id="AssessmentDate" class="form-control" min="5" max="180"
-                    value="<%= jsonData.Duration %>" readonly>
-                  <span class="input-group-text">Minutes</span>
-                </div>
+          <div class="row">
+            <div class="col-md">
+              <div class=" input-group mb-3">
+                <span class="input-group-text" for="AssessmentDate">Duration</span>
+                <input type="number" name="AssessmentDate" id="AssessmentDate" class="form-control" min="5" max="180"
+                  value="<%= jsonData.Duration %>" readonly>
+                <span class="input-group-text">Minutes</span>
               </div>
+            </div>
 
-              <div class="col-md">
-                <div class=" input-group mb-3">
-                  <span class="input-group-text" for="AssessmentDuration">Cut-Off</span>
-                  <input type="number" name="AssessmentCutoff" id="AssessmentCutoff" class="form-control" min="40"
-                    max="100" required placeholder="Min 40%" value="<%= jsonData.Cutoff %>" readonly>
-                  <span class="input-group-text">%</span>
-                </div>
+            <div class="col-md">
+              <div class=" input-group mb-3">
+                <span class="input-group-text" for="AssessmentDuration">Cut-Off</span>
+                <input type="number" name="AssessmentCutoff" id="AssessmentCutoff" class="form-control" min="40"
+                  max="100" required placeholder="Min 40%" value="<%= jsonData.Cutoff %>" readonly>
+                <span class="input-group-text">%</span>
               </div>
             </div>
           </div>
         </div>
-
-        <div class="text-center">
-          <button class="btn btn-primary" id="fullscreenButton"> Start</button>
+        <div id="progressBar" class="">
+          <div class="bar"></div>
         </div>
-        <form action="/submit-assessment" method="post" id="answerScript" style="display: none;">
-          <div id="progressBar">
-            <div class="bar"></div>
-          </div>
-          <input type="hidden" name="AssessmentID" id="AssessmentID" value="<%= result.AssessmentID %>" readonly>
-          <input type="hidden" name="AssessmentKey" id="AssessmentKey" value="<%= result.AssesmentKey %>" readonly>
-          <input type="hidden" name="AssessmentRemarks" id="AssessmentRemarks" value="N/A" readonly>
-          <!-- Loop through sections -->
-          <% for (const sectionName in jsonData) { %>
-            <% if (sectionName.startsWith('Section')) { %>
-              <% const section=jsonData[sectionName]; %>
-                <div class="accordion section m-2" id="accordion<%= sectionName %>">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header">
-                      <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#<%= sectionName %>" aria-expanded="true" aria-controls="<%= sectionName %>">
-                        <input type="text"
-                          class="form-control bg-light-subtle border border-light-subtle rounded-pill w-25"
-                          name="SectionName" value="<%= section.SectionName %>" readonly>
-                        <p class="container px-1 mb-1 text-center"><b>MaxPoints:<span id="<%= sectionName %>Score">
-                              <%= section.MaxScore %></b></span></p>
-                      </button>
-                    </h2>
-                    <div id="<%= sectionName %>" class="accordion-collapse collapse show"
-                      data-bs-parent="#accordion<%= sectionName %>">
-                      <div class="accordion-body" id="questionsContainer1">
-                        <% var i=1; %>
-                          <% for (const questionName in section) { %>
+      </div>
 
-                            <% if (questionName !=='MaxScore' && questionName!="SectionName" ) { %>
-                              <% const question=section[questionName]; %>
-                                <div class="questionn">
-                                  <div class="d-flex jalign-items-end m-2 p-1 ">
-                                    <p class="fs-5 flex-grow-1"><span><b>
-                                          Question <%= i %>
-                                        </b>
-                                        <textarea name="" id="" cols="160" rows="1" class="form-control"
-                                          readonly><%= question['question'] %></textarea> </span>
-                                    </p>
-                                    <p><b>Point:</b>
-                                      <%= question['point'] %>
-                                    </p>
-                                  </div>
-                                  <% if (question['referenceImage'] ) { %>
-                                    <div>
-                                      <img id="uploadedImage" class="rounded img-thumbnail"
-                                        src="../../public/uploads/Trainer/<%= question['referenceImage'] %>"
-                                        alt="Uploaded Image" height="100" width="100" onclick="ExpandImage(this)"
-                                        data-bs-toggle="modal" data-bs-target="#Image_Model" />
-                                    </div>
-                                    <% } %>
-                                      <div class="d-flex flex-column fs-5">
-                                        <% for (const key in question['options']) { %>
+      <div class="text-center" id="warningWindow">
+        <button class="btn btn-primary" id="fullscreenButton"> Start</button>
+        <div style="border: 2px solid red; padding: 10px;" class="m-2">
+          <p style="color: red; font-weight: bold;">
+            Warning: Malpractice Alert!
+          </p>
+          <p>
+            Moving your mouse cursor out of the red color boundary during the assessment, after clicking the
+            <b>START</b> button, is considered a violation of exam rules. This action may be interpreted as an attempt
+            to engage in malpractice.
+          </p>
+          <p>
+            Please ensure that your cursor remains within the specified boundaries throughout the assessment to maintain
+            the integrity of the examination process.
+          </p>
+        </div>
+      </div>
 
-                                          <div class="p-1 m-1">
-                                            <input type="radio" class="form-check-input"
-                                              name="<%=sectionName+'_'+questionName%>"
-                                              value="<%= question['options'][key] %>" required>
-                                            <label class="form-label" for="<%=sectionName+'_'+questionName %>">
-                                              <%= question['options'][key] %>
-                                            </label>
-                                          </div>
+      <form action="/submit-assessment" method="post" id="answerScript" style="display: none;">
 
-                                          <% } %>
-                                      </div>
+        <input type="hidden" name="AssessmentID" id="AssessmentID" value="<%= result.AssessmentID %>" readonly>
+        <input type="hidden" name="AssessmentKey" id="AssessmentKey" value="<%= result.AssesmentKey %>" readonly>
+        <input type="hidden" name="AssessmentRemarks" id="AssessmentRemarks" value="N/A" readonly>
+        <!-- Loop through sections -->
+        <% for (const sectionName in jsonData) { %>
+          <% if (sectionName.startsWith('Section')) { %>
+            <% const section=jsonData[sectionName]; %>
+              <div class="accordion section m-2" id="accordion<%= sectionName %>">
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#<%= sectionName %>" aria-expanded="true" aria-controls="<%= sectionName %>">
+                      <input type="text"
+                        class="form-control bg-light-subtle border border-light-subtle rounded-pill w-25"
+                        name="SectionName" value="<%= section.SectionName %>" readonly>
+                      <p class="container px-1 mb-1 text-center"><b>MaxPoints:<span id="<%= sectionName %>Score">
+                            <%= section.MaxScore %></b></span></p>
+                    </button>
+                  </h2>
+                  <div id="<%= sectionName %>" class="accordion-collapse collapse show"
+                    data-bs-parent="#accordion<%= sectionName %>">
+                    <div class="accordion-body" id="questionsContainer1">
+                      <% var i=1; %>
+                        <% for (const questionName in section) { %>
+
+                          <% if (questionName !=='MaxScore' && questionName!="SectionName" ) { %>
+                            <% const question=section[questionName]; %>
+                              <div class="questionn">
+                                <div class="d-flex jalign-items-end m-2 p-1 ">
+                                  <p class="fs-5 flex-grow-1"><span><b>
+                                        Question <%= i %>
+                                      </b>
+                                      <textarea name="" id="" cols="160" rows="1" class="form-control"
+                                        readonly><%= question['question'] %></textarea> </span>
+                                  </p>
+                                  <p><b>Point:</b>
+                                    <%= question['point'] %>
+                                  </p>
                                 </div>
-                                <hr>
-                                <% i++} %>
-
+                                <% if (question['referenceImage'] ) { %>
+                                  <div>
+                                    <img id="uploadedImage" class="rounded img-thumbnail"
+                                      src="../../public/uploads/Trainer/<%= question['referenceImage'] %>"
+                                      alt="Uploaded Image" height="100" width="100" onclick="ExpandImage(this)"
+                                      data-bs-toggle="modal" data-bs-target="#Image_Model" />
+                                  </div>
                                   <% } %>
-                      </div>
+                                    <div class="d-flex flex-column fs-5">
+                                      <% for (const key in question['options']) { %>
+
+                                        <div class="p-1 m-1">
+                                          <input type="radio" class="form-check-input"
+                                            name="<%=sectionName+'_'+questionName%>"
+                                            value="<%= question['options'][key] %>" required>
+                                          <label class="form-label" for="<%=sectionName+'_'+questionName %>">
+                                            <%= question['options'][key] %>
+                                          </label>
+                                        </div>
+
+                                        <% } %>
+                                    </div>
+                              </div>
+                              <hr>
+                              <% i++} %>
+
+                                <% } %>
                     </div>
                   </div>
                 </div>
+              </div>
+              <% } %>
                 <% } %>
-                  <% } %>
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                      <button class="btn btn-primary me-md-2" type="submit">Submit</button>
-                      <textarea name="JsonFormData" id="JsonFormData" style="display: none;"></textarea>
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <button class="btn btn-primary me-md-2" type="submit">Submit</button>
+                    <textarea name="JsonFormData" id="JsonFormData" style="display: none;"></textarea>
 
-                    </div>
-        </form>
-      </div>
-      <!-- Model for Image -->
-      <div class="modal fade" id="Image_Model" tabindex="-1" aria-labelledby="Image_Model" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <img class="img-fluid" id="img01" alt="Reference Image">
-            </div>
+                  </div>
+      </form>
+    </div>
+    <!-- Model for Image -->
+    <div class="modal fade" id="Image_Model" tabindex="-1" aria-labelledby="Image_Model" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <img class="img-fluid" id="img01" alt="Reference Image">
           </div>
         </div>
       </div>
+    </div>
 
 
-      <!--Static Modal -->
-      <div class="modal fade" id="FullstaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5 text-warning" id="staticBackdropLabel"><i
-                  class="bi bi-exclamation-triangle"></i>&nbsp;Warning</h1>
-              <button type="button" class="btn-close" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <p class="form-label" id="mode_message">Please Maximize Your Browser or Exit from Dual Screen to Take up
-                the Assessment</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary">Ok</button>
-            </div>
+    <!--Static Modal -->
+    <div class="modal fade" id="FullstaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5 text-warning" id="staticBackdropLabel"><i
+                class="bi bi-exclamation-triangle"></i>&nbsp;Warning <span id="Timer"></span></h1>
+            <button type="button" class="btn-close" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="form-label" id="mode_message">Please Maximize Your Browser or Exit from Dual Screen to Take up
+              the Assessment</p>
           </div>
         </div>
       </div>
+    </div>
 
-  </body>
-  <%- include('../partials/dependencies-js') %>
-    <script>
-      document.getElementById("answerScript").addEventListener('submit', (e) => {
-        e.preventDefault();
-        SubmitAssessment();
-      });
+    <!--Warning Static Modal -->
+    <div class="modal fade" id="WarningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5 text-warning" id="staticBackdropLabel"><i
+                class="bi bi-exclamation-triangle"></i>&nbsp;Warning <span class="NoAttempts"></span>-Attempts Remaining
+            </h1>
+            <button type="button" class="btn-close" aria-label="Close" tabindex="-1"></button>
+          </div>
+          <div class="modal-body">
+            <p class="form-label" id="warning_mode_message"></p>
+          </div>
+          <div class="modal-footer" id="warning_modal_footer">
+            <button type="button" class="btn btn-secondary" tabindex="-1" id="abortbtn">Abort <span
+                id="Waring_Timer"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</body>
+<%- include('../partials/dependencies-js') %>
+  <script>
+    document.getElementById("answerScript").addEventListener('submit', (e) => {
+      e.preventDefault();
+      SubmitAssessment();
+    });
 
 
-      document.addEventListener('keydown', function (event) {
-        // Check if the Escape key or Windows key is pressed
-        console.log(event.code);
-        if (event.code === 'Escape' || (event.code === 'Escape' && event.code === 'Meta')) {
-          // Prevent the default behavior
-          event.preventDefault();
-        }
-      });
-      
-      function progress(timeleft, timetotal, $element) {
-        var progressBarWidth = (timeleft * $element.width()) / timetotal;
-        $element
-          .find("div")
-          .animate({ width: progressBarWidth }, 500)
-          .html(Math.floor(timeleft / 60) + ":" + (timeleft % 60));
-        if (timeleft > 0) {
-          setTimeout(function () {
-            progress(timeleft - 1, timetotal, $element);
-          }, 1000);
-        } else if (timeleft == 60) {
-          alert("Last 1 Min Remaining");
-        } else if (timeleft == 0 || timeleft < 0) {
-          document.getElementById("AssessmentRemarks").value = "Time Out Auto Submitting the Assessment."
-          SubmitAssessment();
-        }
+    document.addEventListener('keydown', function (event) {
+      if (event.code === 'Escape' || (event.code === 'Escape' && event.code === 'Meta')) {
+        event.preventDefault();
       }
-      
+    });
 
-      let NoOfAttempts = 2;
-      var v = '<%= jsonData.Duration %>';
-      document.addEventListener("DOMContentLoaded", function () {
-        const fullscreenButton = document.getElementById("fullscreenButton");
-        fullscreenButton.addEventListener("click", function () {
-          document.getElementById("fullscreenButton").style.display = "none";
+    function progress(timeleft, timetotal, $element) {
+      var progressBarWidth = (timeleft * $element.width()) / timetotal;
+      $element
+        .find("div")
+        .animate({ width: progressBarWidth }, 500)
+        .html(Math.floor(timeleft / 60) + ":" + (timeleft % 60));
+      if (timeleft > 0) {
+        setTimeout(function () {
+          progress(timeleft - 1, timetotal, $element);
+        }, 1000);
+      }
+      if (timeleft == 300) {
+        alert("Last 5 Min Remaining");
+      }
+      if (timeleft == 1 || timeleft < 0) {
+        document.getElementById("AssessmentRemarks").value = "Time Out Auto Submitting the Assessment."
+        setTimeout(() => {
+          SubmitAssessment()
+        }, 1000)
+      }
+    }
 
-          // const element = document.getElementById("sheet"); // Fullscreen element (e.g., <html> or <body>)
-          // if (element.requestFullscreen) {
-          //   element.requestFullscreen();
-          // } else if (element.mozRequestFullScreen) { // Firefox
-          //   element.mozRequestFullScreen();
-          // } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
-          //   element.webkitRequestFullscreen();
-          // } else if (element.msRequestFullscreen) { // Internet Explorer
-          //   element.msRequestFullscreen();
-          // }
+
+    let NoOfAttempts = 4;
+    var timeLeft = 1;
+    var timerId = "";
+    var v = '<%= jsonData.Duration %>';
+    v = 1.1;
+    setInterval(() => {
+      var noattempts = document.getElementsByClassName("NoAttempts");
+      for (element of noattempts) {
+        element.innerText = NoOfAttempts;
+      };
+    }, 500)
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const fullscreenButton = document.getElementById("fullscreenButton");
+      document.getElementById("progressBar").style.display = "none";
+
+      fullscreenButton.addEventListener("click", function () {
+        document.getElementById("fullscreenButton").style.display = "none";
+        document.getElementById("warningWindow").style.display = "none";
+        document.getElementById("main").classList.add("border", "border-danger", "border-5")
+        // const element = document.getElementById("sheet"); // Fullscreen element (e.g., <html> or <body>)
+        // if (element.requestFullscreen) {
+        //   element.requestFullscreen();
+        // } else if (element.mozRequestFullScreen) { // Firefox
+        //   element.mozRequestFullScreen();
+        // } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+        //   element.webkitRequestFullscreen();
+        // } else if (element.msRequestFullscreen) { // Internet Explorer
+        //   element.msRequestFullscreen();
+        // }
 
 
-          progress(v * 60, v * 60, $("#progressBar"));
-          document.querySelector('form').style.display = "block";
-        
+        progress(v * 60, v * 60, $("#progressBar"));
+        document.querySelector('form').style.display = "block";
+        document.getElementById("progressBar").style.display = "block";
+        let ValidScreen = true;
 
+        //Check the Validity of the Screen While Loading the Page
+        window.onload = function () {
+          if (!crossCheckScreenSize()) {
+            $("#FullstaticBackdrop").modal('show');
+            ValidScreen = false;
+          }
+        };
+
+        //Function to Monitor the Mouse Leaving out of the Assessment page
+        document.getElementById("main").addEventListener('mouseleave', () => {
+          if (NoOfAttempts > 1) {
+            NoOfAttempts--;
+            document.getElementById("warning_mode_message").innerHTML = "You are outside the assessment boundary. Please refrain from doing so in the future.\nClick the <b>Abort</b> button to stop the automatic submission.";
+            timeLeft = 20;
+            clearTimeout(timerId);
+            timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+            $("#WarningModal").modal('show');
+          } else {
+            document.getElementById("AssessmentRemarks").value = "Auto Submitted Assessment (Moved Outside the assessment boundary)."
+            document.getElementById("warning_mode_message").innerText = "You are outside the assessment boundary.\nAuto Submitting the Assessment in 30 Seconds...!";
+            timeLeft = 30;
+            clearTimeout(timerId);
+            timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+            $("#WarningModal").modal('show');
+          }
+          
+        });
+
+        //Function to Monitor the Switching the Tab and Window.
         $(window).on('blur', function () {
           if (NoOfAttempts > 1) {
             NoOfAttempts--;
-            $("#FullstaticBackdrop").modal('hide');
-            alert("WARNING : Switching of Tab's detected.\nAssignment will be auto submitted by system if repeated.");
+            document.getElementById("warning_mode_message").innerHTML = "The system has detected tab switching. If this action recurs, the assignment will be automatically submitted. To prevent this, click the <b>Abort</b> button to stop the automatic submission."
             document.getElementById("AssessmentRemarks").value = "Switching of Tab's detected."
+            timeLeft = 20;
+            clearTimeout(timerId);
+            timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+            $("#WarningModal").modal('show');
           } else {
-            $("#FullstaticBackdrop").modal('hide');
             document.getElementById("AssessmentRemarks").value = "Switching of Tab's detected."
-            alert("Switching of Tab's detected.\nAuto Submitting the Assessment in 5 Seconds...!");
-            window.setTimeout(function () {
-              SubmitAssessment();
-            }, 5000)
+            document.getElementById("warning_mode_message").innerText = "Switching of Tab's detected.\nAuto Submitting the Assessment in 5 Seconds...!";
+            timeLeft = 5;
+            if (timerId) {
+              clearTimeout(timerId);
+            }
+            timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+            document.getElementById("warning_modal_footer").style.display = "none"
+            $("#WarningModal").modal('show');
           }
+          
+        });
+
+        //Function to Monitor the Minimizing and Maximizing the Screen. 
+        addEventListener("resize", (event) => {
+          if (!crossCheckScreenSize()) {
+            ValidScreen = false;
+            if (NoOfAttempts > 1) {
+              NoOfAttempts--;
+              document.getElementById("AssessmentRemarks").value = "Resizing of Browser Detected"
+              document.getElementById("mode_message").innerText = `Ensure that your browser is maximized or exit from the dual screen mode within 20 seconds to proceed with the assessment. Failure to do so will result in the system automatically submitting the assessment.`
+              timeLeft = 20;
+              clearTimeout(timerId);
+              timerId = setInterval(countdown, 1000, document.getElementById("Timer"));
+              $("#FullstaticBackdrop").modal('show');
+            } else {
+              document.getElementById("AssessmentRemarks").value = "Auto Submitted Assessment (Resizing of Browser Detected)."
+              document.getElementById("mode_message").innerText = "Resizing of the Browser Detected.\nAuto Submitting the Assessment in 5 Seconds...!";
+              timeLeft = 20;
+              clearTimeout(timerId);
+              timerId = setInterval(countdown, 1000, document.getElementById("Timer"));
+              $("#FullstaticBackdrop").modal('show');
+            }
+          } else {
+            clearTimeout(timerId);
+            ValidScreen = true;
+          }
+          
         });
 
 
-      let ValidScreen = true;
-      window.onload = function () {
-        if (!crossCheckScreenSize()) {
-          $("#staticBackdrop").modal('show');
-          ValidScreen = false;
-        }
-      };
-
-      addEventListener("resize", (event) => {
-        if (!crossCheckScreenSize()) {
-          ValidScreen = false;
-          if (NoOfAttempts > 1) {
-            NoOfAttempts--;
-            document.getElementById("mode_message").innerText = "Resizing of the Browser Detected...!\nAssignment will be auto submitted by system if repeated.";
-            $("#FullstaticBackdrop").modal('show');
-
+        function countdown(e) {
+          console.log("hi")
+          var elem = e;
+          if (timeLeft == 0) {
+            clearTimeout(timerId);
+            $("#WarningModal").modal('hide');
+            $("#FullstaticBackdrop").modal('hide');
+            SubmitAssessment();
           } else {
-            document.getElementById("AssessmentRemarks").value = "Resizing of Browser Auto Submitting Assessment."
-            document.getElementById("mode_message").innerText = "Resizing of the Browser Detected.\nAuto Submitting the Assessment in 5 Seconds...!";
-            $("#FullstaticBackdrop").modal('show');
-            window.setTimeout(function () {
-              SubmitAssessment();
-            }, 5000)
+            elem.innerHTML = timeLeft+"";
+            timeLeft--;
           }
-        } else {
-          ValidScreen = true;
         }
       });
-    });
+
+
+      //Periodically Check the Screen Size
       window.setInterval(function () {
         if (crossCheckScreenSize()) {
           $("#FullstaticBackdrop").modal('hide');
@@ -323,7 +417,14 @@
           $("#FullstaticBackdrop").modal('show');
         }
       }, 500);
+
+
+      document.getElementById("abortbtn").addEventListener('click', (e) => {
+        clearTimeout(timerId);
+        $("#WarningModal").modal('hide');
+      });
     });
-    </script>
+
+  </script>
 
 </html>

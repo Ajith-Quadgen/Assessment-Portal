@@ -18,8 +18,8 @@ const router = express.Router();
 const PDFGenerator = require('pdfkit');
 const DateTime = require('node-datetime/src/datetime');
 const { restart } = require('nodemon');
-const Jimp = require('jimp');
-
+const { PDFDocument, rgb, degrees } = require('pdf-lib');
+const { createCanvas, loadImage, registerFont } = require('canvas');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
 app.engine('html', require('ejs').renderFile);
@@ -107,8 +107,93 @@ app.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/');
 });
+function splitText(text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = '';
 
-app.get('/', (req, res) => {
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = Jimp.measureText(Jimp.FONT_SANS_32_BLACK, testLine);
+
+    if (testWidth <= maxWidth) {
+      currentLine = testLine;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+
+  lines.push(currentLine);
+
+  return lines;
+}
+app.get('/', async (req, res) => {
+  const data = [
+    {Course:"Comcast ESRI Portal for E-Asbuilts", name: 'Naveen Kumar Boddapati' },
+  ];
+  const canvas = createCanvas(1280, 720); // Adjust the canvas size as needed
+  const ctx = canvas.getContext('2d');
+  
+  // Load background image
+  loadImage('Template-11.png').then((image) => {
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  
+    // // Load custom font (if needed)
+   // registerFont('./static/Font/fruitella-rgzgk.ttf', { family: 'fruitella-rgzgk' });
+  
+    for (const person of data) {
+      // Customize text properties
+      ctx.font = '30px serif'; // Use your own font and size
+      ctx.fillStyle = 'black'; // Text color
+  
+      // Calculate X-coordinate for horizontal alignment
+      let Course="Awarded to";
+      let CourseWidth = ctx.measureText(Course).width;
+      let Course_xPosition = (canvas.width - CourseWidth) / 2;
+      // Draw the text on the certificate
+      ctx.fillText(Course, Course_xPosition, 270);
+
+      ctx.font = '60px serif';
+      ctx.fillStyle = '#6fbee1'; 
+      const Name = `${person.name}`;
+      const NameWidth = ctx.measureText(Name).width;
+      const Name_xPosition = (canvas.width - NameWidth) / 2;
+      // Draw the text on the certificate
+      ctx.fillText(Name, Name_xPosition, 350);
+
+
+      ctx.font = '30px serif';
+      ctx.fillStyle = 'black';
+      Course = `On`;
+       CourseWidth = ctx.measureText(Course).width;
+       Course_xPosition = (canvas.width - CourseWidth) / 2;
+      // Draw the text on the certificate
+      ctx.fillText(Course, Course_xPosition, 420);
+
+      ctx.font = '44px serif';
+      Course = `${person.Course}`;
+      CourseWidth = ctx.measureText(Course).width;
+      Course_xPosition = (canvas.width - CourseWidth) / 2;
+     // Draw the text on the certificate
+     ctx.fillText(Course, Course_xPosition, 490);
+
+
+      ctx.font = '30px sans';
+   
+      let Current_Date=new Date().toLocaleDateString('en-US').replaceAll('/','-');
+      Current_Date=`Dated: ${Current_Date}`
+      const DateWidth = ctx.measureText(Current_Date).width;
+      const Date_xPosition = (canvas.width - DateWidth) / 2;
+      // Draw the text on the certificate
+      ctx.fillText(Current_Date, Date_xPosition, 560);
+  
+      // Save the certificate as an image (e.g., PNG)
+      const stream = canvas.createPNGStream();
+      const outputFile = fs.createWriteStream(`Certificate_${person.name}_${ Date.now()}.png`);
+      stream.pipe(outputFile);
+    }
+  });
   res.redirect('/login');
 });
 
@@ -378,20 +463,69 @@ app.post('/submit-assessment', async (req, res) => {
         }
         theOutput.end()
         let { certificatePath, Certificate_Name } = "";
-        if (result1.Result == "Cleared") {
-          Certificate_Name = `${req.session.UserID}_${Date.now()}_${result[0]['AssessmentName']}_Certificate.jpg`
-          certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
+        if (resultLabel == "Cleared") {
           try {
-            const Heading_font=await Jimp.loadFont('./static/Font/My-Font.fnt');
-            const Content_font=await Jimp.loadFont('./static/Font/My-Font-32.fnt');
-            const Small_font=await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
-            Jimp.read('Template-1.png').then((image) => {
-                image.print(Heading_font, 350, 320, req.session.UserName);
-                image.print(Content_font, 330, 450, result[0]['AssessmentName'])
-                image.print(Small_font, 400, 500, formatDateToOrdinal(new Date()).toString())
-                image.writeAsync(certificatePath)
+            Certificate_Name = `${req.session.UserID}_${Date.now()}_${result[0]['AssessmentName']}_Certificate.jpg`
+            certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
+            const canvas = createCanvas(1280, 720); // Adjust the canvas size as needed
+            const ctx = canvas.getContext('2d');
+            
+            // Load background image
+            loadImage('Template-11.png').then((image) => {
+              ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            
+              // // Load custom font (if needed)
+             // registerFont('./static/Font/fruitella-rgzgk.ttf', { family: 'fruitella-rgzgk' });
+                // Customize text properties
+                ctx.font = '30px serif'; // Use your own font and size
+                ctx.fillStyle = 'black'; // Text color
+            
+                // Calculate X-coordinate for horizontal alignment
+                let Course="Awarded to";
+                let CourseWidth = ctx.measureText(Course).width;
+                let Course_xPosition = (canvas.width - CourseWidth) / 2;
+                // Draw the text on the certificate
+                ctx.fillText(Course, Course_xPosition, 270);
+          
+                ctx.font = '60px serif';
+                ctx.fillStyle = '#6fbee1'; 
+                const Name = `${result[0].employeeName}`;
+                const NameWidth = ctx.measureText(Name).width;
+                const Name_xPosition = (canvas.width - NameWidth) / 2;
+                // Draw the text on the certificate
+                ctx.fillText(Name, Name_xPosition, 350);
+          
+          
+                ctx.font = '30px serif';
+                ctx.fillStyle = 'black';
+                Course = `On`;
+                 CourseWidth = ctx.measureText(Course).width;
+                 Course_xPosition = (canvas.width - CourseWidth) / 2;
+                // Draw the text on the certificate
+                ctx.fillText(Course, Course_xPosition, 420);
+          
+                ctx.font = '44px serif';
+                Course = `${result[0]['AssessmentName']}`;
+                CourseWidth = ctx.measureText(Course).width;
+                Course_xPosition = (canvas.width - CourseWidth) / 2;
+               // Draw the text on the certificate
+               ctx.fillText(Course, Course_xPosition, 490);
+          
+          
+                ctx.font = '30px sans';
+             
+                let Current_Date=new Date().toLocaleDateString('en-US').replaceAll('/','-');
+                Current_Date=`Dated: ${Current_Date}`
+                const DateWidth = ctx.measureText(Current_Date).width;
+                const Date_xPosition = (canvas.width - DateWidth) / 2;
+                // Draw the text on the certificate
+                ctx.fillText(Current_Date, Date_xPosition, 560);
+            
+                // Save the certificate as an image (e.g., PNG)
+                const stream = canvas.createPNGStream();
+                const outputFile = fs.createWriteStream(certificatePath);
+                stream.pipe(outputFile);
             });
-            console.log('Certificate saved successfully:', certificatePath);
           } catch (err) {
             console.error('Certificate generation and saving failed:', err);
           }

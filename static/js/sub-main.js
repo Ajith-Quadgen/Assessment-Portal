@@ -27,3 +27,6 @@ function enterFullScreen(element) {
     const isScreenEqualToPage = screenWidth === pageWidth && screenHeight === pageHeight;
     return isScreenEqualToPage;
   }
+  // document.documentElement.addEventListener('mouseleave', () => {
+  //   alert("Out")
+  // })
