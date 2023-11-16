@@ -336,6 +336,7 @@
             timeLeft = 30;
             clearTimeout(timerId);
             timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+            document.getElementById("warning_modal_footer").style.display = "none"
             $("#WarningModal").modal('show');
           }
           
