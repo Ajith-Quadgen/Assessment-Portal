@@ -7,9 +7,9 @@ employee_router.get('/', (req, res) => {
       let message;
       if (req.query.message != undefined && req.query.message != "") {
         message = req.query.message;
-        res.render('../views/Employees/EmployeeHome', { message: message });
+        res.render('../views/Employees/EmployeeHome', { message: message,Role:req.session.UserRole,title:"QG-Assessment Portal" });
       } else {
-        res.render('../views/Employees/EmployeeHome', { message: null });
+        res.render('../views/Employees/EmployeeHome', { message: null,Role:req.session.UserRole,title:"QG-Assessment Portal" });
       }
     } else {
       res.redirect('/login');
@@ -44,12 +44,12 @@ employee_router.get('/', (req, res) => {
               ConsolidatedResult.push(result);
               counter++;
               if (counter === resultOne.length) {
-                res.render("../views/Employees/ResultBoard", { Data: ConsolidatedResult });
+                res.render("../views/Employees/ResultBoard", { Data: ConsolidatedResult,Role:req.session.UserRole,title:"Result Board" });
               }
             });
           });
         } else {
-          res.render("../views/Employees/ResultBoard", { Data: ConsolidatedResult });
+          res.render("../views/Employees/ResultBoard", { Data: ConsolidatedResult,Role:req.session.UserRole,title:"Result Board" });
         }
       });
     } else {
@@ -58,7 +58,7 @@ employee_router.get('/', (req, res) => {
   });
   
   employee_router.get("*",(req,res)=>{
-    res.status(404).send("Invalid Request")
+    res.redirect('/')
   })
   function formatDateString(dateString) {
     const date = new Date(dateString);

@@ -81,15 +81,15 @@ app.post('/uploadImage', (req, res) => {
 });
 
 
-db.connect((error) => {
-  if (error) {
-    console.error('Failed to connect to MySQL database:', error);
-  } else {
-    console.log('Connected to MySQL database!');
-  }
-});
+// db.connect((error) => {
+//   if (error) {
+//     console.error('Failed to connect to MySQL database:', error);
+//   } else {
+//     console.log('Connected to MySQL database!');
+//   }
+// });
 
-
+// db.end()
 const port = 4500;
 const host = "172.17.1.22"
 const privateKey = fs.readFileSync('key.pem');
@@ -105,98 +105,149 @@ httpsServer.listen(port, () => {
 let dt = dateTime.create();
 let CurrentDate = dt.format('Y-m-d H:M:S');
 
-app.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/');
-});
-function splitText(text, maxWidth) {
-  const words = text.split(' ');
-  const lines = [];
-  let currentLine = '';
+app.get('/', async (req, res) => {
 
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const testWidth = Jimp.measureText(Jimp.FONT_SANS_32_BLACK, testLine);
+  try {
+   let Certificate_Name = `Certificate.pdf`
+   let certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
+    const canvas = createCanvas(1280, 720,'pdf'); // Adjust the canvas size as needed
+    const ctx = canvas.getContext('2d');
+    const result=[
+      {
+        employeeName:"Ajith Kumar",
+        AssessmentName:"Node JS "
 
-    if (testWidth <= maxWidth) {
-      currentLine = testLine;
-    } else {
-      lines.push(currentLine);
-      currentLine = word;
-    }
+      }
+    ]
+    // Load background image
+    loadImage('Template-11.png').then((image) => {
+      //ctx.addPage()
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    
+      // // Load custom font (if needed)
+     // registerFont('./static/Font/fruitella-rgzgk.ttf', { family: 'fruitella-rgzgk' });
+        // Customize text properties
+        ctx.font = '30px serif'; // Use your own font and size
+        ctx.fillStyle = 'black'; // Text color
+    
+        // Calculate X-coordinate for horizontal alignment
+        let Course="Awarded to";
+        let CourseWidth = ctx.measureText(Course).width;
+        let Course_xPosition = (canvas.width - CourseWidth) / 2;
+        // Draw the text on the certificate
+        ctx.fillText(Course, Course_xPosition, 270);
+  
+        ctx.font = '60px serif';
+        ctx.fillStyle = '#6fbee1'; 
+        const Name = `${result[0].employeeName}`;
+        const NameWidth = ctx.measureText(Name).width;
+        const Name_xPosition = (canvas.width - NameWidth) / 2;
+        // Draw the text on the certificate
+        ctx.fillText(Name, Name_xPosition, 350);
+  
+  
+        ctx.font = '30px serif';
+        ctx.fillStyle = 'black';
+        Course = `On`;
+         CourseWidth = ctx.measureText(Course).width;
+         Course_xPosition = (canvas.width - CourseWidth) / 2;
+        // Draw the text on the certificate
+        ctx.fillText(Course, Course_xPosition, 420);
+  
+        ctx.font = '44px serif';
+        Course = `${result[0]['AssessmentName']}`;
+        CourseWidth = ctx.measureText(Course).width;
+        Course_xPosition = (canvas.width - CourseWidth) / 2;
+       // Draw the text on the certificate
+       ctx.fillText(Course, Course_xPosition, 490);
+  
+  
+        ctx.font = '30px sans';
+     
+        let Current_Date=new Date().toLocaleDateString('en-US').replaceAll('/','-');
+        Current_Date=`Dated: ${Current_Date}`
+        const DateWidth = ctx.measureText(Current_Date).width;
+        const Date_xPosition = (canvas.width - DateWidth) / 2;
+        // Draw the text on the certificate
+        ctx.fillText(Current_Date, Date_xPosition, 560);
+    
+        // Save the certificate as an image (e.g., PNG)
+        const stream = canvas.createPDFStream();
+       // const stream = canvas.createPNGStream();
+        const outputFile = fs.createWriteStream(certificatePath);
+        stream.pipe(outputFile);
+    });
+  } catch (err) {
+    console.error('Certificate generation and saving failed:', err);
   }
 
-  lines.push(currentLine);
-
-  return lines;
-}
-app.get('/', async (req, res) => {
-  const data = [
-    {Course:"Comcast ESRI Portal for E-Asbuilts", name: 'Naveen Kumar Boddapati' },
-  ];
-  const canvas = createCanvas(1280, 720); // Adjust the canvas size as needed
-  const ctx = canvas.getContext('2d');
-  
-  // Load background image
-  loadImage('Template-11.png').then((image) => {
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-  
-    // // Load custom font (if needed)
-   // registerFont('./static/Font/fruitella-rgzgk.ttf', { family: 'fruitella-rgzgk' });
-  
-    for (const person of data) {
-      // Customize text properties
-      ctx.font = '30px serif'; // Use your own font and size
-      ctx.fillStyle = 'black'; // Text color
-  
-      // Calculate X-coordinate for horizontal alignment
-      let Course="Awarded to";
-      let CourseWidth = ctx.measureText(Course).width;
-      let Course_xPosition = (canvas.width - CourseWidth) / 2;
-      // Draw the text on the certificate
-      ctx.fillText(Course, Course_xPosition, 270);
-
-      ctx.font = '60px serif';
-      ctx.fillStyle = '#6fbee1'; 
-      const Name = `${person.name}`;
-      const NameWidth = ctx.measureText(Name).width;
-      const Name_xPosition = (canvas.width - NameWidth) / 2;
-      // Draw the text on the certificate
-      ctx.fillText(Name, Name_xPosition, 350);
-
-
-      ctx.font = '30px serif';
-      ctx.fillStyle = 'black';
-      Course = `On`;
-       CourseWidth = ctx.measureText(Course).width;
-       Course_xPosition = (canvas.width - CourseWidth) / 2;
-      // Draw the text on the certificate
-      ctx.fillText(Course, Course_xPosition, 420);
-
-      ctx.font = '44px serif';
-      Course = `${person.Course}`;
-      CourseWidth = ctx.measureText(Course).width;
-      Course_xPosition = (canvas.width - CourseWidth) / 2;
-     // Draw the text on the certificate
-     ctx.fillText(Course, Course_xPosition, 490);
-
-
-      ctx.font = '30px sans';
-   
-      let Current_Date=new Date().toLocaleDateString('en-US').replaceAll('/','-');
-      Current_Date=`Dated: ${Current_Date}`
-      const DateWidth = ctx.measureText(Current_Date).width;
-      const Date_xPosition = (canvas.width - DateWidth) / 2;
-      // Draw the text on the certificate
-      ctx.fillText(Current_Date, Date_xPosition, 560);
-  
-      // Save the certificate as an image (e.g., PNG)
-      const stream = canvas.createPNGStream();
-      const outputFile = fs.createWriteStream(`Certificate_${person.name}_${ Date.now()}.png`);
-      stream.pipe(outputFile);
+  if (req.session.UserID) {
+    switch (req.session.UserRole) {
+      case "Employee":
+        res.redirect('/Employee');
+        break;
+      case "Trainer":
+        res.redirect('/Trainer');
+        break;
+      case "Admin":
+        res.redirect('/Admin');
+        break;
+      default:
+        res.render('login');
+        break;
     }
-  });
-  res.redirect('/login');
+  } else {
+    res.render('login');
+  }
+});
+
+app.get('/login', (req, res) => {
+  if (req.session.UserID) {
+    switch (req.session.UserRole) {
+      case "Employee":
+        res.redirect('/Employee');
+        break;
+      case "Trainer":
+        res.redirect('/Trainer');
+        break;
+      case "Admin":
+        res.redirect('/Admin');
+        break;
+      default:
+        res.render('login');
+        break;
+    }
+  } else {
+    res.render('login');
+  }
+});
+
+
+
+app.post('/AuthenticateLogin', (req, res) => {
+  var UserInfo = req.body;
+  db.query("select * from userlogin where empId=? or email=? and password=? and status='Active'", [UserInfo.Username, UserInfo.Username, UserInfo.password], function (error, result) {
+    if (error) throw error;
+    if (result.length > 0) {
+      db.query("update userlogin set lastSeen=? where empId=?", [CurrentDate, result[0].empId], function (error, result) {
+        if (error) throw error;
+      });
+      req.session.UserID = result[0].empId;
+      req.session.UserRole = result[0].role;
+      req.session.UserName = result[0].employeeName;
+      if (result[0].role == "Employee") {
+        res.redirect('/Employee');
+      } else if (result[0].role == "Trainer") {
+        res.redirect('/Trainer');
+      } else if (result[0].role == "Admin") {
+        res.redirect('/Admin');
+      } else {
+        return res.send("Internal Server Error");
+      }
+    } else {
+      res.redirect('/?Message=Invalid UserName or Password');
+    }
+  })
 });
 
 app.post('/submit-questionnaire', (req, res) => {
@@ -275,7 +326,7 @@ app.post('/ExamHall', (req, res) => {
     db.query("select * from assessments where AssesmentKey=? and Status='Published'", [req.body.AssesmentKey], function (error, result) {
       if (result.length > 0) {
         jsonData = JSON.parse(result[0].Questionnaire);
-        res.render('Employees/takeAssessment', { jsonData: jsonData, "result": result[0], message: null, user: req.session.UserRole });
+        res.render('Employees/takeAssessment', { jsonData: jsonData, "result": result[0], message: null, user: req.session.UserRole,title:"Assessment Page" });
       } else {
         const queryData = queryString.stringify({
           message: Buffer.from("Invalid Assessment Key").toString('base64')
@@ -288,52 +339,8 @@ app.post('/ExamHall', (req, res) => {
   }
 })
 
-app.get('/login', (req, res) => {
-  if (req.session.UserID) {
-    switch (req.session.UserRole) {
-      case "Employee":
-        res.redirect('/Employee');
-        break;
-      case "Trainer":
-        res.redirect('/Trainer');
-        break;
-      case "Admin":
-        res.redirect('/Admin');
-        break;
-      default:
-        res.render('login');
-        break;
-    }
-  } else {
-    res.render('login');
-  }
-});
 
-app.post('/AuthenticateLogin', (req, res) => {
-  var UserInfo = req.body;
-  db.query("select * from userlogin where empId=? or email=? and password=? and status='Active'", [UserInfo.email, UserInfo.email, UserInfo.password], function (error, result) {
-    if (error) throw error;
-    if (result.length > 0) {
-      db.query("update userlogin set lastSeen=? where empId=?", [CurrentDate, result[0].empId], function (error, result) {
-        if (error) throw error;
-      });
-      req.session.UserID = result[0].empId;
-      req.session.UserRole = result[0].role;
-      req.session.UserName = result[0].employeeName;
-      if (result[0].role == "Employee") {
-        res.redirect('/Employee');
-      } else if (result[0].role == "Trainer") {
-        res.redirect('/Trainer');
-      } else if (result[0].role == "Admin") {
-        res.redirect('/Admin');
-      } else {
-        return res.send("Internal Server Error");
-      }
-    } else {
-      return res.redirect('/login');
-    }
-  })
-});
+
 
 app.post('/submit-assessment', async (req, res) => {
   if (req.session.UserID) {
@@ -467,9 +474,9 @@ app.post('/submit-assessment', async (req, res) => {
         let { certificatePath, Certificate_Name } = "";
         if (resultLabel == "Cleared") {
           try {
-            Certificate_Name = `${req.session.UserID}_${Date.now()}_${result[0]['AssessmentName']}_Certificate.jpg`
+            Certificate_Name = `${req.session.UserID}_${Date.now()}_${result[0]['AssessmentName']}_Certificate.pdf`
             certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
-            const canvas = createCanvas(1280, 720); // Adjust the canvas size as needed
+            const canvas = createCanvas(1280, 720,'pdf'); // Adjust the canvas size as needed
             const ctx = canvas.getContext('2d');
             
             // Load background image
@@ -524,7 +531,7 @@ app.post('/submit-assessment', async (req, res) => {
                 ctx.fillText(Current_Date, Date_xPosition, 560);
             
                 // Save the certificate as an image (e.g., PNG)
-                const stream = canvas.createPNGStream();
+                const stream = canvas.createPDFStream();
                 const outputFile = fs.createWriteStream(certificatePath);
                 stream.pipe(outputFile);
             });
@@ -552,7 +559,7 @@ app.post('/submit-assessment', async (req, res) => {
             if (error2) {
               console.log(error2)
             } else {
-              res.render('Employees/Result', { Result: Result });
+              res.render('Employees/Result', { Result: Result,Role:req.session.UserRole,title:"Assessment Result" });
             }
           });
         });
@@ -568,19 +575,26 @@ app.get('/Error', (req, res) => {
   res.render('error');
 });
 app.get('/changePassword', async (req, res) => {
-  const message = "Hi Ajith";
-  const certificatePath = 'certificate.jpg';
   if (req.session.UserID) {
-    res.render('ChangePassword')
+    res.render('ChangePassword',{Role:req.session.UserRole,title:"Change Password"})
   } else {
     res.redirect('/login');
   }
 });
 
-app.get('*', async (req, res) => {
-  //res.redirect('/login');
-  res.status(400).send("Page Not Found");
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
 });
+
+app.get('*', async (req, res) => {
+  res.redirect('/login');
+  //res.status(400).send("Page Not Found");
+});
+
+
+
+
 function formatDateString(dateString) {
   const date = new Date(dateString);
   const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };

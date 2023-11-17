@@ -5,13 +5,19 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Home</title>
+    <title><%- title %></title>
     <%- include('../partials/dependencies') %>
 </head>
 
 <body>
     <header>
-        <%- include('../partials/admin-header') %>
+        <% if(Role=="Admin" ){ %>
+            <%- include('../partials/admin-header',{title:title}) %>
+                <% }else if(Role=="Employee" ){ %>
+                    <%- include('../partials/employee-header',{title:title}) %>
+                        <%} if(Role=="Trainer" ){ %>
+                            <%- include('../partials/trainer-header',{title:title}) %>
+                                <%}%>
     </header>
     <main class="main_container">
         <div class="d-flex w-100">
@@ -107,31 +113,31 @@
         </div>
     </main>
     <%- include('../partials/dependencies-js') %>
-    <script>
-        
-        function updateStatusAPI(id, newStatus) {
-            axios.post('/api/updateUserStatus', {
-                params: {
-                    id: id,
-                    status: newStatus
-                }
-            }).then(res => {
-                if (res.status == 200) {
-                    updateContentArea(res.data);
-                }
-            })
-                .catch(e => {
-                    console.log(e);
-                    alert("Unable to Update the Status...\nPlease Contact Admin");
-                })
-        }
+        <script>
 
-        function updateContentArea(data) {
-                if (data.length>0) {
-                        $('#content-area').empty();
-                        const table = document.getElementById("content-area");
-                        for (let i = 0; i < data.length; i++) {
-                            table.innerHTML += `<tr>
+            function updateStatusAPI(id, newStatus) {
+                axios.post('/api/updateUserStatus', {
+                    params: {
+                        id: id,
+                        status: newStatus
+                    }
+                }).then(res => {
+                    if (res.status == 200) {
+                        updateContentArea(res.data);
+                    }
+                })
+                    .catch(e => {
+                        console.log(e);
+                        alert("Unable to Update the Status...\nPlease Contact Admin");
+                    })
+            }
+
+            function updateContentArea(data) {
+                if (data.length > 0) {
+                    $('#content-area').empty();
+                    const table = document.getElementById("content-area");
+                    for (let i = 0; i < data.length; i++) {
+                        table.innerHTML += `<tr>
                                     <td>${i + 1}</td>
                                     <td>${data[i]["empId"]}</td>
                                     <td>${data[i]["employeeName"]}</td>
@@ -148,14 +154,14 @@
                                                 class="bi bi-x-circle"></i></button>
                                     </td>
                                     </td>`;
-                        }
                     }
+                }
 
             }    
-    </script>
-    <footer>
-        <%- include('../partials/footer') %>
-    </footer>
+        </script>
+        <footer>
+            <%- include('../partials/footer') %>
+        </footer>
 </body>
 
 </html>

@@ -26,12 +26,12 @@ trainer_router.get('/', (req, res) => {
             ConsolidatedInfo.push(result);
             counter++;
             if (counter === resultOne.length) {
-              res.render('../views/Trainer/TrainerHome', { data: ConsolidatedInfo });
+              res.render('../views/Trainer/TrainerHome', { data: ConsolidatedInfo,Role:req.session.UserRole,title:"QC-Assessment Portal" });
             }
           });
         });
       } else {
-        res.render('../views/Trainer/TrainerHome', { data: ConsolidatedInfo });
+        res.render('../views/Trainer/TrainerHome', { data: ConsolidatedInfo,Role:req.session.UserRole,title:"QG-Assessment Portal" });
       }
     });
   } else {
@@ -41,7 +41,7 @@ trainer_router.get('/', (req, res) => {
 
 trainer_router.get('/CreateAssessment', (req, res) => {
   if (req.session.UserID) {
-    res.render("../views/Trainer/create_assessment");
+    res.render("../views/Trainer/create_assessment",{Role:req.session.UserRole,title:"Create Assessment"});
   } else {
     res.redirect('/login');
   }
@@ -54,7 +54,7 @@ trainer_router.get('/viewAssessment', (req, res) => {
     if (err) throw err;
     if (result.length > 0) {
       jsonData = JSON.parse(result[0].Questionnaire);
-      res.render("../views/Trainer/view_assessment", { jsonData: jsonData, "result": result[0], message: null });
+      res.render("../views/Trainer/view_assessment", { jsonData: jsonData, "result": result[0], message: null,Role:req.session.UserRole,title:"View Assessment" });
     } else {
       res.redirect('/error');
     }
@@ -67,7 +67,7 @@ trainer_router.get('/editAssessment', (req, res) => {
     if (err) throw err;
     if (result.length > 0) {
       jsonData = JSON.parse(result[0].Questionnaire);
-      res.render("../views/Trainer/EditAssessment", { jsonData: jsonData, "result": result[0], message: null });
+      res.render("../views/Trainer/EditAssessment", { jsonData: jsonData, "result": result[0], message: null,Role:req.session.UserRole,title:"Edit Assessment" });
     } else {
       res.redirect('/error');
     }
@@ -102,12 +102,12 @@ trainer_router.get('/viewResponces', (req, res) => {
             ConsolidatedResponces.push(result);
             counter++;
             if (counter === resultOne.length) {
-              res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces,AssID:req.query.AssessmentID });
+              res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces,AssID:req.query.AssessmentID,Role:req.session.UserRole,title:"Assessment Responses" });
             }
           });
         });
       } else {
-        res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces,AssID:"" });
+        res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces,AssID:"",Role:req.session.UserRole,title:"Assessment Responses"});
 
       }
 
@@ -124,7 +124,7 @@ trainer_router.get('/Reappear-Request',(req,res)=>{
         console.log(error)
         res.status(400).send("Internal Server Error");
       }
-        res.render('../views/Trainer/RepeatRequest',{Data:result,flag:true});
+        res.render('../views/Trainer/RepeatRequest',{Data:result,flag:true,Role:req.session.UserRole,title:"Re-Appearing Request"});
     });
   }else{
     res.redirect('/login');
@@ -136,9 +136,9 @@ trainer_router.get('/TakeAssessment',(req,res)=>{
     let message;
     if (req.query.message != undefined && req.query.message != "") {
       message = req.query.message;
-      res.render('../views/Trainer/T_ExamHall', { message: message,user:"Trainer" });
+      res.render('../views/Trainer/T_ExamHall', { message: message,user:"Trainer",Role:req.session.UserRole,title:"Assessment Hall" });
     } else {
-      res.render('../views/Trainer/T_ExamHall', { message: null,user:"Trainer" });
+      res.render('../views/Trainer/T_ExamHall', { message: null,user:"Trainer",Role:req.session.UserRole,title:"Assessment Hall" });
     }
   } else {
     res.redirect('/login');
@@ -146,7 +146,7 @@ trainer_router.get('/TakeAssessment',(req,res)=>{
 })
 
 trainer_router.get("*",(req,res)=>{
-  res.status(404).send("Invalid Request")
+  res.redirect('/')
 })
 function formatDateString(dateString) {
   const date = new Date(dateString);

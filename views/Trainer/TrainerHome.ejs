@@ -5,13 +5,19 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trainer Home</title>
+    <title><%- title %></title>
     <%- include('../partials/dependencies') %>
 </head>
 
 <body>
     <header>
-        <%- include('../partials/trainer-header') %>
+        <% if(Role=="Admin" ){ %>
+            <%- include('../partials/admin-header',{title:title}) %>
+                <% }else if(Role=="Employee" ){ %>
+                    <%- include('../partials/employee-header',{title:title}) %>
+                        <%} if(Role=="Trainer" ){ %>
+                            <%- include('../partials/trainer-header',{title:title}) %>
+                                <%}%>
     </header>
     <div class="main_container justify-content-md-center">
         <div class="d-flex justify-content-md-center flex-wrap">

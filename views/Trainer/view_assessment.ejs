@@ -5,10 +5,16 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Preview Assessment</title>
+  <title><%- title %></title>
   <%- include('../partials/dependencies') %>
 </head>
-<%- include('../partials/trainer-header') %>
+<% if(Role=="Admin" ){ %>
+  <%- include('../partials/admin-header',{title:title}) %>
+      <% }else if(Role=="Employee" ){ %>
+          <%- include('../partials/employee-header',{title:title}) %>
+              <%} if(Role=="Trainer" ){ %>
+                  <%- include('../partials/trainer-header',{title:title}) %>
+                      <%}%>
 
   <body>
     <style>
@@ -40,16 +46,16 @@
     </style>
     <div class="main_container justify-content-md-center" id="sheet">
       <div class="child" id="main">
-        <div class="row g-2">
+        <div class="row g-2 position-sticky fixed-top z-3 bg-white">
           <div class="col-md">
             <div class=" input-group mb-3">
               <span class="input-group-text" for="AssessmentTitle">Title</span>
-              <input type="text" class="form-control" id="AssessmentTitle" placeholder="<%= jsonData.Title %>" readonly>
+              <input type="text" class="form-control" id="AssessmentTitle" value="<%= jsonData.Title %>" readonly>
             </div>
             <div class=" input-group mb-3">
               <span class="input-group-text" for="AssessmentDescriptinon">Description</span>
               <input type="text" class="form-control" id="AssessmentDescriptinon"
-                placeholder="<%= jsonData.Description %>" readonly>
+                value="<%= jsonData.Description %>" readonly>
             </div>
           </div>
           <div class="col-md">
@@ -87,16 +93,15 @@
               </div>
             </div>
           </div>
-
+          <div id="progressBar">
+            <div class="bar" id="Bar"></div>
+          </div>
         </div>
 
         <!-- <div class="text-center">
         <button class="btn btn-primary" id="fullscreenButton"> Start</button>
-      </div> -->
+        </div> -->
         <form id="answerScript">
-          <div id="progressBar">
-            <div class="bar" id="Bar"></div>
-          </div>
           <input type="hidden" name="AssessmentID" id="AssessmentID" value="<%= result.AssessmentID %>" readonly>
           <input type="hidden" name="AssessmentKey" id="AssessmentKey" value="<%= result.AssesmentKey %>" readonly>
           <input type="hidden" name="AssessmentRemarks" id="AssessmentRemarks" value="" readonly>
@@ -174,8 +179,12 @@
                 <% } %>
                   <% } %>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                      <button class="btn btn-primary me-md-2" type="button" id="Publishbtn" <%
-                        if(result.Status=="Published" ){%> disabled <% } %>>Publish <i
+                      <% if(result.Status=="Draft" ){%> 
+                        
+                        <button class="btn btn-outline-primary me-md-2" type="button" id="Publishbtn">Edit <i class="bi bi-pencil-square"></i></button>
+                        
+                        <% } %>
+                      <button class="btn btn-outline-success me-md-2" type="button" id="Publishbtn" <% if(result.Status=="Published" ){%> disabled >Already Published  <% } %> > Publish <i
                             class="bi bi-cloud-arrow-up"></i></button>
                       <textarea name="JsonFormData" id="JsonFormData" style="display: none;"></textarea>
                     </div>

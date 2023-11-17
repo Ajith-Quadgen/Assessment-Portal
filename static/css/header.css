@@ -304,18 +304,21 @@ nav .icon-burger .line {
 }
 
 .result-card-pass {
-    background: rgb(236,238,238);
-    background: -moz-linear-gradient(0deg, rgba(236,238,238,1) 0%, rgba(141,232,120,0.9641106442577031) 100%);
-    background: -webkit-linear-gradient(0deg, rgba(236,238,238,1) 0%, rgba(141,232,120,0.9641106442577031) 100%);
-    background: linear-gradient(0deg, rgba(236,238,238,1) 0%, rgba(141,232,120,0.9641106442577031) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#eceeee",endColorstr="#8de878",GradientType=1);
+    background: rgb(236, 238, 238);
+    background: -moz-linear-gradient(0deg, rgba(236, 238, 238, 1) 0%, rgba(141, 232, 120, 0.9641106442577031) 100%);
+    background: -webkit-linear-gradient(0deg, rgba(236, 238, 238, 1) 0%, rgba(141, 232, 120, 0.9641106442577031) 100%);
+    background: linear-gradient(0deg, rgba(236, 238, 238, 1) 0%, rgba(141, 232, 120, 0.9641106442577031) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#eceeee", endColorstr="#8de878", GradientType=1);
 }
-.result-card-fail{
-    background: rgb(236,238,238);
-    background: -moz-linear-gradient(0deg, rgba(236,238,238,1) 0%, rgba(232,120,136,0.9641106442577031) 100%);
-    background: -webkit-linear-gradient(0deg, rgba(236,238,238,1) 0%, rgba(232,120,136,0.9641106442577031) 100%);
-    background: linear-gradient(0deg, rgba(236,238,238,1) 0%, rgba(232,120,136,0.9641106442577031) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#eceeee",endColorstr="#e87888",GradientType=1);}
+
+.result-card-fail {
+    background: rgb(236, 238, 238);
+    background: -moz-linear-gradient(0deg, rgba(236, 238, 238, 1) 0%, rgba(232, 120, 136, 0.9641106442577031) 100%);
+    background: -webkit-linear-gradient(0deg, rgba(236, 238, 238, 1) 0%, rgba(232, 120, 136, 0.9641106442577031) 100%);
+    background: linear-gradient(0deg, rgba(236, 238, 238, 1) 0%, rgba(232, 120, 136, 0.9641106442577031) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#eceeee", endColorstr="#e87888", GradientType=1);
+}
+
 @keyframes floater {
     0% {
         transform: translateY(-90%);
@@ -352,8 +355,8 @@ nav .icon-burger .line {
     }
 }
 
- /* Add CSS styles for the loading animation */
- #loading-spinner {
+/* Add CSS styles for the loading animation */
+#loading-spinner {
     display: none;
     width: 50px;
     height: 50px;
@@ -362,9 +365,68 @@ nav .icon-burger .line {
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 50px auto;
-  }
+}
 
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.ticker {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0 auto;
+    position: fixed;
+    bottom: 3px;
+    right: 0px;
+    z-index: 20;
+    font-family: "Oswald", serif;
+    height: 35px;
+}
+
+.news {
+    width: 100%;
+    background: #fff;
+    border: solid 1px #c8102e;
+}
+
+.news-title {
+    width: 100px;
+    text-align: center;
+    background: #c8102e;
+    position: absolute;
+    z-index: 10;
+    height: 35px;
+    text-shadow: 1px 1px #000;
+}
+
+.news-title:after {
+    position: absolute;
+    content: "";
+    right: -39px;
+    top: 0px;
+}
+
+.news-title h5 {
+    font-size: 12px;
+    margin: 14% 0;
+    color: #fff;
+    padding: 0px 5px;
+}
+
+.news marquee {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.news-content p {
+    margin-right: 41px;
+    display: inline;
+    color: #222;
+}

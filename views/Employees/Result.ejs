@@ -6,11 +6,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- <meta http-equiv="refresh" content="10;url=/login" /> -->
-  <title>Result</title>
+  <title><%- title %></title>
   <%- include('../partials/dependencies') %>
 </head>
 
-<%- include('../partials/employee-header') %>
+<% if(Role=="Admin" ){ %>
+  <%- include('../partials/admin-header',{title:title}) %>
+      <% }else if(Role=="Employee" ){ %>
+          <%- include('../partials/employee-header',{title:title}) %>
+              <%} if(Role=="Trainer" ){ %>
+                  <%- include('../partials/trainer-header',{title:title}) %>
+                      <%}%>
 
   <body>
     <section class="result-section main_container " style="display: flex;
@@ -35,6 +41,9 @@
     <h5>Total Score:<%= Result.TotalScore%>
     </h5>
     <h5>Percentage:<%= Result.SecuredPercentage%>
+    </h5>
+    <h5>
+      Go to Result Page to Collect Your Certificate
     </h5>
     <a href="/login" class="btn btn-outline-dark rounded-pill"><i class="bi bi-arrow-left-circle-fill"></i> Go Back To Home</a>
   </div>

@@ -8,6 +8,21 @@ const crypto = require('crypto');
 const PDFGenerator = require('pdfkit');
 const DateTime = require('node-datetime/src/datetime');
 const excel = require('exceljs');
+const nodemailer = require('nodemailer');
+const smtpTransport = require('nodemailer-smtp-transport');
+
+const transporter = nodemailer.createTransport(
+    smtpTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // true for 465, false for other ports
+        auth: {
+            user: 'software.development@quadgenwireless.com ', // Your Gmail email address
+            pass: 'mrzpgphmoulavifx '   // Your Gmail password or app-specific password
+        }
+
+    })
+);
 //Setting up Storage Area
 const myStorage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -25,7 +40,86 @@ const myFileFilter = (req, file, error) => {
         cb(new Error("Not a PDF File!!"), false);
     }
 };
+
 const upload = multer({ storage: myStorage, limits: { fileSize: 500000 } }).single("myQCImage");
+
+api_router.post('/GeneratePasswordResetOPT', async (req, res) => {
+    let n = 0;
+    n = crypto.randomInt(100000, 999999)
+    db.query("Select * from userlogin where Status='Active' and empId=?", [req.body.params.UserID], async (error, result) => {
+        if (error) {
+            console.log(error)
+            return res.status(406).json({ Message: "Unable to find your Details, Try after sometime...!" })
+        } else {
+            if (result.length > 0) {
+                const mailOptions = {
+                    from: 'software.development@quadgenwireless.com ',
+                    to: result[0].email,
+                    subject: `OTP For Password Generation is_${n}`,
+                    html: `<h3>Hi ${result[0].employeeName}</h3><br>The One Time Password for Generating new Login Credentials for Assessment Portal is<b><h2>${n}</h2></b><br>This is OTP will Expire in 5 Min.<br><br><br>Regards`,
+                };
+                await transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error('Error on sending email:', error);
+                        req.session.PWDResetOTP = null;
+                        res.status(406).json({ Message: "Failed to Generate OTP, Try again...!" })
+                    } else {
+                        req.session.PWDResetOTP = n;
+                        req.session.PWDresetEmail = result[0].email;
+                        req.session.PWDResetUserID = req.body.params.UserID;
+                        res.status(200).json({ Message: "The OTP is sent to your mail" })
+                    }
+                });
+            } else {
+                return res.status(406).json({ Message: "Unable to find your Details, Try after sometime...!" })
+            }
+        }
+    })
+
+})
+
+api_router.post("/GenerateNewPassword", (req, res) => {
+    const UserOTP = req.body.params.OTP;
+    if (req.session.PWDResetOTP == UserOTP) {
+        const RandomPWD = Math.random().toString(36).substring(2, 12);
+        db.query("update userlogin set password=? where empId=? and email=? and Status='Active'", [RandomPWD, req.session.PWDResetUserID, req.session.PWDresetEmail], (error, result) => {
+            if (error) {
+                console.log(error)
+                return res.status(406).json({ Message: "Something Went wrong, Unable to Generate New Password." })
+            } else {
+                const mailOptions = {
+                    from: 'software.development@quadgenwireless.com ',
+                    to: req.session.PWDresetEmail,
+                    subject: `New Password for QG-Assessment Portal`,
+                    html: `<h3>Hi</h3>
+                    The New Login Credentials for QG-Assessment Portal:<br>
+                    <p><b>UserID:</b> ${req.session.PWDResetUserID}</p>
+                    <p><b>Password:</b> ${RandomPWD}<br></p></br>
+                    <b>Note:</b> After Login Please Change Your Password.
+                    <br><br>--<br>Regards`,
+                };
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error('Error on sending email:', error);
+                        req.session.PWDResetOTP = null;
+                        req.session.PWDResetUserID = null;
+                        req.session.PWDresetEmail = null;
+                        return res.status(406).json({ Message: "Something Went wrong, Unable to Generate New Password." })
+                    } else {
+                        req.session.PWDResetOTP = null;
+                        req.session.PWDResetUserID = null;
+                        req.session.PWDresetEmail = null;
+                        return res.status(200).json({ Message: "OTP Verification Successful\nNew Password has been shared to you vai Email." })
+                    }
+                });
+            }
+        })
+
+    } else {
+        return res.status(406).json({ Message: "Invalid OTP,Try again...!" })
+    }
+})
+
 api_router.post('/PublishAssessment', (req, res) => {
     if (req.session.UserID && req.session.UserRole == "Trainer" || req.session.UserRole == "Admin") {
         db.query("update assessments set Status='Published' where AssessmentID=? and AssesmentKey=? and CreatedBy=?", [req.body.params.Id, req.body.params.key, req.session.UserID], (err, result) => {
@@ -116,11 +210,11 @@ api_router.get('/AssessmentDetails', (req, res) => {
 
                         })
                     } else {
-			    db.query("select * from responces R,assessments A where R.employeeid=? and R.AssessmentID=A.AssessmentID and A.AssesmentKey=? and R.Result='Cleared'", [req.session.UserID, req.query.AssesmentKey], (error4, result4) => {
+                        db.query("select * from responces R,assessments A where R.employeeid=? and R.AssessmentID=A.AssessmentID and A.AssesmentKey=? and R.Result='Cleared'", [req.session.UserID, req.query.AssesmentKey], (error4, result4) => {
                             if (error4) throw error4
-                            if(result4.length>0){
+                            if (result4.length > 0) {
                                 res.status(400).send("It seems you have cleared the assessment. Hence you are not eligible for a retake.")
-                            }else{
+                            } else {
                                 db.query("select A.AssessmentName,A.Description,A.Duration,A.MaximumScore,A.CreatedBy,U.employeeName,U.role from assessments as A join userlogin as U where A.AssesmentKey=? and A.Status='Published' and A.CreatedBy=U.empId and A.CreatedBy!=? ", [req.query.AssesmentKey, req.session.UserID], function (error3, result3) {
                                     if (error3) throw error3
                                     if (result3.length > 0) {
@@ -269,11 +363,11 @@ api_router.get('/DownloadAssessmentReport', (req, res) => {
                         { header: "Participant Name", key: "employeeName", width: 20 }
                     ]
                     let temp = JSON.parse(resultOne[0].obtainedmarks);
-                    
+
                     for (const attribute in temp) {
                         if (attribute.startsWith("Section")) {
                             MyColumns.push({ header: attribute, key: attribute, width: 10 })
-                            
+
                         }
                     }
                     MyColumns.push(
@@ -303,11 +397,11 @@ api_router.get('/DownloadAssessmentReport', (req, res) => {
                     //await workbook.xlsx.write(res);
                     await workbook.xlsx.writeFile("./public/Generated/report.xlsx").then(() => {
                         res.download('./public/Generated/report.xlsx')
-                        
+
                     });
                     // await workbook.xlsx.write(res).then(() => {
                     //     //res.download('./public/Generated/report.xlsx')
-                        
+
                     // });
                 } else {
                     console.log("no data")

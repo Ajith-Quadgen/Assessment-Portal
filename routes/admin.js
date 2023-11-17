@@ -19,7 +19,7 @@ admin_router.get('/', (req, res) => {
       });
       db.query("select * from assessments", function (error, result) {
         if (error) throw error
-        res.render('../views/admin/adminHome', { data: result, TotalCount: count, employeecount: employee, trainercount: trainer, admincount: admin });
+        res.render('../views/admin/adminHome', { data: result, TotalCount: count, employeecount: employee, trainercount: trainer, admincount: admin,Role:req.session.UserRole,title:"Admin Dashboard" });
       })
     } else {
       res.redirect('/login');
@@ -32,7 +32,7 @@ admin_router.get("/viewUsers",(req,res)=>{
         console.log(error)
         res.status(400).send("Internal Server Error");
       }
-        res.render('../views/admin/viewUser',{Data:result});
+        res.render('../views/admin/viewUser',{Data:result,Role:req.session.UserRole,title:"Users"});
     });
   } else {
       res.redirect('/login');
@@ -40,7 +40,7 @@ admin_router.get("/viewUsers",(req,res)=>{
 })
 admin_router.get("/addUser",(req,res)=>{
   if (req.session.UserID && req.session.UserRole == "Admin") {
-res.render("../views/admin/AddUser");
+res.render("../views/admin/AddUser",{Role:req.session.UserRole,title:"Users"});
   }else{
     res.redirect('/login');
   }
@@ -63,7 +63,7 @@ admin_router.post('/addUser',(req,res)=>{
   }
 });
   admin_router.get("*",(req,res)=>{
-    res.status(404).send("Invalid Request")
+    res.redirect('/')
   })
   function formatDateString(dateString) {
     const date = new Date(dateString);

@@ -172,9 +172,7 @@ margin:5px 15px 5px 5px;
 input[type='radio']:hover{
   border: 1px solid #0d6efd;
 }
-input[readonly]{
-  cursor: not-allowed;
-}
+
 
 #notification-tab>div>p{
   align-self: center;
@@ -199,4 +197,7 @@ writing-mode: vertical-rl;
 .notification-area:hover{
   width: 300px;
 
+}
+.modal-backdrop {
+  z-index: -1 !important;
 }

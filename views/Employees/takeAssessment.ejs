@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assessment Hall</title>
+  <title><%- title %></title>
   <%- include('../partials/dependencies') %>
 </head>
 
@@ -38,6 +38,7 @@
       border-radius: 30px;
       box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
     }
+    
   </style>
   <div class="main_container justify-content-md-center" id="sheet" style="top: 0px;">
     <div class="child mb-1" id="main">
@@ -85,14 +86,13 @@
       </div>
 
       <div class="text-center" id="warningWindow">
-        <button class="btn btn-primary" id="fullscreenButton"> Start</button>
+       
         <div style="border: 2px solid red; padding: 10px;" class="m-2">
           <p style="color: red; font-weight: bold;">
             Warning: Malpractice Alert!
           </p>
-          <p>
-            Moving your mouse cursor out of the red color boundary during the assessment, after clicking the
-            <b>START</b> button, is considered a violation of exam rules. This action may be interpreted as an attempt
+          <p>After clicking the            <b>START</b> button, 
+            Moving your mouse cursor out of the red color boundary during the assessment is considered a violation of exam rules. This action may be interpreted as an attempt
             to engage in malpractice.
           </p>
           <p>
@@ -100,6 +100,7 @@
             the integrity of the examination process.
           </p>
         </div>
+        <button class="btn btn-primary" id="fullscreenButton"> Start</button>
       </div>
 
       <form action="/submit-assessment" method="post" id="answerScript" style="display: none;">
@@ -332,11 +333,11 @@
             $("#WarningModal").modal('show');
           } else {
             document.getElementById("AssessmentRemarks").value = "Auto Submitted Assessment (Moved Outside the assessment boundary)."
-            document.getElementById("warning_mode_message").innerText = "You are outside the assessment boundary.\nAuto Submitting the Assessment in 30 Seconds...!";
+            document.getElementById("warning_mode_message").innerText = "You are outside the assessment boundary.\nThe assessment will be automatically submitted in 30 seconds.";
             timeLeft = 30;
             clearTimeout(timerId);
             timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
-            document.getElementById("warning_modal_footer").style.display = "none"
+            document.getElementById("abortbtn").setAttribute("id","")
             $("#WarningModal").modal('show');
           }
           
