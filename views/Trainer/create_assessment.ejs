@@ -28,8 +28,8 @@
                   required>
               </div>
               <div class=" input-group mb-3">
-                <span class="input-group-text" for="AssessmentDescriptinon">Description</span>
-                <input type="text" class="form-control" id="AssessmentDescriptinon"
+                <span class="input-group-text" for="AssessmentDescription">Description</span>
+                <input type="text" class="form-control" id="AssessmentDescription"
                   placeholder="Description Of the Assessment">
               </div>
             </div>
@@ -43,11 +43,18 @@
                       required>
                   </div>
                 </div> -->
-                <div class="col-md">
+                <div class="col-md col-1">
                   <div class="input-group mb-3">
                     <span class="input-group-text" for="AssessmentTotalMarks">Total Score</span>
                     <input type="number" name="AssessmentTotalMarks" id="AssessmentTotalMarks" class="form-control"
-                      value="" min="0" required readonly>
+                      value="0" min="0" required readonly>
+                  </div>
+                </div>
+                <div class="col-md">
+                  <div class="input-group mb-3" data-bs-toggle="tooltip" data-bs-title="The Course Name to be Printed on Certificate ">
+                    <span class="input-group-text" for="AssessmentCertificateName">Course Name</span>
+                    <input type="text" name="AssessmentCertificateName" id="AssessmentCertificateName" minlength="10"
+                      class="form-control" value="" placeholder="Course Name Printed on Certificate" required>
                   </div>
                 </div>
               </div>
@@ -82,7 +89,7 @@
                   aria-expanded="true" aria-controls="section1">
 
                   <input type="text" class="form-control bg-light-subtle border border-light-subtle rounded-pill w-25"
-                    name="SectionName" id="" placeholder="Please enter the section-1 name" required>
+                    name="SectionName" id="" placeholder="Enter the Section-1 Name" required>
                   <p class="container px-1 mb-1 text-center">Max-Points:&nbsp;<b><span class="sectionScore"
                         id="sectionScore1">0</b></span></p>
                 </button>

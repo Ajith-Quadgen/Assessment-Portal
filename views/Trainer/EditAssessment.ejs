@@ -17,24 +17,25 @@
             <%}%>
 
               <body>
-                <div class="main_container justify-content-md-center" id="sheet">
-                  <div class="child" id="main">
-                    <form action="#" method="post" id="questionnaire">
-                      <div class="row g-2 position-sticky fixed-top z-3 bg-white">
+                <div class="main_container justify-content-md-center">
+                  <form action="/Trainer/updateAssessment" method="post" id="questionnaire">
+                    <div class="child" id="main">
+                      <div class="row g-2">
                         <div class="col-md">
                           <div class=" input-group mb-3">
                             <span class="input-group-text" for="AssessmentTitle">Title</span>
-                            <input type="text" class="form-control" id="AssessmentTitle" value="<%= jsonData.Title %>">
+                            <input type="text" class="form-control" id="AssessmentTitle" value="<%= jsonData.Title %>"
+                              placeholder="Title Of the Assessment" required>
                           </div>
                           <div class=" input-group mb-3">
-                            <span class="input-group-text" for="AssessmentDescriptinon">Description</span>
-                            <input type="text" class="form-control" id="AssessmentDescriptinon"
-                              value="<%= jsonData.Description %>">
+                            <span class="input-group-text" for="AssessmentDescription">Description</span>
+                            <input type="text" class="form-control" id="AssessmentDescription"
+                              placeholder="Description Of the Assessment" value="<%= jsonData.Description %>">
                           </div>
                         </div>
                         <div class="col-md">
                           <div class="row">
-                                      <!-- <div class="input-group mb-3">
+                            <!-- <div class="input-group mb-3">
                         <span class="input-group-text" for="AssessmentDate">Date</span>
                         <input type="date" name="AssessmentDate" id="AssessmentDate" class="form-control" min="yyyy-mm-dd"
                           value="<%= jsonData.Date %>" readonly>
@@ -46,13 +47,22 @@
                                   class="form-control" value="<%= jsonData.TotalScore %>" min="0" required readonly>
                               </div>
                             </div>
+                            <div class="col-md">
+                              <div class="input-group mb-3" data-bs-toggle="tooltip"
+                                data-bs-title="The Course Name to be Printed on Certificate ">
+                                <span class="input-group-text" for="AssessmentCertificateName">Course Name</span>
+                                <input type="text" name="AssessmentCertificateName" id="AssessmentCertificateName"
+                                  minlength="10" class="form-control" value="<%= result.Certificate_Name %>" required>
+                              </div>
+                            </div>
                           </div>
                           <div class="row">
                             <div class="col-md">
                               <div class=" input-group mb-3">
                                 <span class="input-group-text" for="AssessmentDuration">Duration</span>
                                 <input type="number" name="AssessmentDuration" id="AssessmentDuration"
-                                  class="form-control" min="5" max="180" value="<%= jsonData.Duration %>">
+                                  class="form-control" min="5" max="180" value="<%= jsonData.Duration %>"
+                                  placeholder="Min 5">
                                 <span class="input-group-text">Minutes</span>
                               </div>
                             </div>
@@ -67,7 +77,6 @@
                             </div>
                           </div>
                         </div>
-
                       </div>
                       <input type="hidden" name="AssessmentID" id="AssessmentID" value="<%= result.AssessmentID %>"
                         readonly>
@@ -75,123 +84,175 @@
                         readonly>
                       <input type="hidden" name="AssessmentRemarks" id="AssessmentRemarks" value="" readonly>
                       <!-- Loop through sections -->
-                      <% for (const sectionName in jsonData) { %>
-                        <% if (sectionName.startsWith('Section')) { %>
-                          <% const section=jsonData[sectionName]; %>
-                            <div class="accordion section m-2 mySection" id="accordion<%= sectionName %>"
-                              data-section="1" onclick="updateActiveSheet(this)">
-                              <div class="accordion-item">
-                                <h2 class="accordion-header d-flex justify-content-between">
-                                  <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#<%= sectionName %>" aria-expanded="true"
-                                    aria-controls="<%= sectionName %>">
-                                    <input type="text"
-                                      class="form-control bg-light-subtle border border-light-subtle rounded-pill w-25"
-                                      name="SectionName" value="<%= section.SectionName %>">
-                                    <p class="container px-1 mb-1 text-center"><b>MaxPoints:<span class="sectionScore"
-                                          id="<%= sectionName %>Score">
-                                          <%= section.MaxScore %></b></span></p>
-                                  </button>
-                                </h2>
-                                <div id="<%= sectionName %>" class="accordion-collapse collapse show"
-                                  data-bs-parent="#accordion<%= sectionName %>">
-                                  <div class="accordion-body" id="questionsContainer1">
-                                    <% var i=1; %>
-                                      <% for (const questionName in section) { %>
-
-                                        <% if (questionName !=='MaxScore' && questionName!="SectionName" ) { %>
-                                          <% const question=section[questionName]; %>
-                                            <div class="questionn" data-question="1">
-                                              <div class="row justify-content-end">
-                                                <button type="button" class="btn btn-danger btn-close removeQuestionBtn"
-                                                  data-question="1" aria-label="Close"></button>
-                                              </div>
-                                              <h3>Question <%= i %>
-                                              </h3>
-                                              <div>
-                                                <textarea name="section[1]question[1]" id="question1" cols="160"
-                                                  rows="1" class="form-control" spellcheck="true"
-                                                  required><%= question['question'] %></textarea>
-                                              </div>
-                                              <div class="options">
-                                                <div class="d-flex justify-content-between align-items-end m-2 p-1">
-                                                  <div>
-                                                    <p>Choose the Correct Answer,
-                                                      After filling up the options</p>
-                                                  </div>
-                                                  <div>
-                                                    <label for="imageInput1" class="form-label">Attach an Image
-                                                      (Max Size 500kb)</label>
-                                                    <input class="form-control" type="file" accept="image/*"
-                                                      id="imageInput1" name="myQCImage"
-                                                      onchange="uploadImage(this,'section[1]question[1][referenceImage]','section[1]question[1][uploadedImage]');">
-                                                    <input type="hidden" name="section[1]question[1][referenceImage]"
-                                                      id="section[1]question[1][referenceImage]" readonly>
-                                                  </div>
-                                                  <div>
-                                                    <img id="section[1]question[1][uploadedImage]" class="img-thumbnail"
-                                                      height="100" width="100" onclick="ExpandImage(this)"
-                                                      src="../../public/uploads/Trainer/<%= question['referenceImage'] %>"
-                                                      alt="Uploaded Image" style="display:block" data-bs-toggle="modal"
-                                                      data-bs-target="#Image_Model" />
-                                                  </div>
-                                                  <div class=" input-group mb-3" style="width: max-content;">
-                                                    <span class="input-group-text" for="score1">Points</span>
-                                                    <input type="number" class="form-control" id="score1"
-                                                      value="<%= question['point'] %>"
-                                                      name="section[1]question[1][score]" min="1" max="50"
-                                                      onchange="UpdateTotalPoints()" required>
-                                                  </div>
+                      <% var i=1; %>
+                        <% var sectionCounter=1; %>
+                          <% for (const sectionName in jsonData) { %>
+                            <% if (sectionName.startsWith('Section')) { %>
+                              <% const section=jsonData[sectionName]; %>
+                                <div class="accordion section m-2 mySection" id="accordion<%= sectionName %>"
+                                  data-section="<%- sectionCounter %>" onclick="updateActiveSheet(this)">
+                                  <div class="accordion-item">
+                                    <h2 class="accordion-header d-flex justify-content-between">
+                                      <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#section<%= sectionCounter %>" aria-expanded="true"
+                                        aria-controls="section<%= sectionCounter %>">
+                                        <input type="text"
+                                          class="form-control bg-light-subtle border border-light-subtle rounded-pill w-25"
+                                          name="SectionName" value="<%= section.SectionName %>" id="<%- sectionName %>"
+                                          placeholder="Enter the Section-<%- sectionCounter %> Name">
+                                        <p class="container px-1 mb-1 text-center"><b>Max-Points: <span
+                                              class="sectionScore" id="sectionScore<%= sectionCounter %>">
+                                              <%= section.MaxScore %></b></span></p>
+                                      </button>
+                                    </h2>
+                                    <div id="section<%= sectionCounter %>" class="accordion-collapse collapse show"
+                                      data-bs-parent="#accordionSection<%= sectionCounter %>">
+                                      <div class="accordion-body" id="questionsContainer<%-sectionCounter %>">
+                                        <% for (const questionName in section) { %>
+                                          <% if (questionName !=='MaxScore' && questionName!="SectionName" ) { %>
+                                            <% const question=section[questionName]; %>
+                                              <div class="question" data-question="<%- i %>">
+                                                <div class="row justify-content-end">
+                                                  <button type="button" class="btn  btn-close me-2 removeQuestionBtn"
+                                                    data-question="<%- i %>" aria-label="Close"></button>
                                                 </div>
-                                                <div class="d-flex flex-column fs-5">
-                                                  <% for (const key in question['options']) { %>
-                                                    <div class="p-1 m-1">
-                                                      <input type="radio" class="form-check-input"
-                                                        name="<%=sectionName+'_'+questionName%>"
-                                                        value="<%= question['options'][key] %>" required>
-                                                      <label class="form-label"
-                                                        for="<%=sectionName+'_'+questionName %>">
-                                                        <%= question['options'][key] %>
-                                                      </label>
+                                                <h4>Question <%= i %>
+                                                </h4>
+
+                                                <div>
+                                                  <textarea name="section[1]question[<%- i %>][question]"
+                                                    id="question<%- i %>" cols="90" rows="1" wrap="soft"
+                                                    class="form-control" spellcheck="true"
+                                                    required><%= question['question'] %></textarea>
+                                                </div>
+                                                <div class="options">
+                                                  <div class="d-flex justify-content-evenly align-items-center m-2 p-1">
+                                                    <div data-bs-toggle="tooltip"
+                                                      data-bs-title="Attach an Image (Max Size 500kb)">
+
+                                                      <input class="form-control" type="file" accept="image/*"
+                                                        id="imageInput<%- i %>" name="myQCImage"
+                                                        onchange="uploadImage(this,'section[<%- sectionCounter  %>]question[<%- i %>][referenceImage]','section[<%- sectionCounter  %>]question[<%- i %>][uploadedImage]');">
+                                                      <input type="hidden"
+                                                        name="section[<%- sectionCounter  %>]question[<%- i %>][referenceImage]"
+                                                        id="section[<%- sectionCounter  %>]question[<%- i %>][referenceImage]"
+                                                        readonly>
                                                     </div>
+                                                    <div data-bs-toggle="tooltip"
+                                                      data-bs-title="Click to View the Attachment">
+                                                      <img id="section[1]question[<%- i %>][uploadedImage]"
+                                                        class="img-thumbnail"
+                                                        style="max-width: 100px;max-height: 40px;;"
+                                                        onclick="ExpandImage(this)" alt="Reference Image"
+                                                        data-bs-toggle="modal" data-bs-target="#Image_Model" <% if
+                                                        (question['referenceImage']) {%>
+                                                      src="../../public/uploads/Trainer/<%= question['referenceImage']
+                                                        %>"
 
-                                                    <% } %>
+                                                        <% }else{ %>
+                                                          src=""
+
+                                                          <% } %> />
+                                                    </div>
+                                                    <div class=" input-group" style="width: max-content;">
+                                                      <span class="input-group-text" for="score<%- i %>">Points</span>
+                                                      <input type="number" class="form-control" id="score<%- i %>"
+                                                        value="<%= question['point'] %>"
+                                                        name="section[1]question[<%- i %>][score]" min="1" max="50"
+                                                        onchange="UpdateTotalPoints()" required>
+                                                    </div>
+                                                  </div>
+                                                  <div class="d-flex flex-column fs-5">
+                                                    <% optionCount=1; %>
+                                                      <% if( question ['type']=='MCQ' ){ %>
+                                                        <% for (const key in question['options']) { %>
+                                                          <div class="input-group mb-2">
+                                                            <div class="input-group-text">
+                                                              <input type="radio" class="form-check-input"
+                                                                data-bs-toggle="tooltip"
+                                                                data-bs-title="Fill all the options before selecting the correct answer"
+                                                                name="<%=sectionName+'_'+i%>" value="<%= optionCount %>"
+                                                                required <% if
+                                                                (question['options'][key]==question['answer']) { %>
+                                                              checked <% } %> onclick="setAnswer(this,'<%-
+                                                                  question['type'] %>')">
+                                                            </div>
+                                                            <input type="text" class="form-control "
+                                                              name="section[1]question[<%-i%>][option<%-optionCount%>]"
+                                                              id="option<%- optionCount %>_<%-i%>" minlength="1"
+                                                              value="<%= question['options'][key] %>" required>
+                                                          </div>
+                                                          <% optionCount++ } %>
+                                                            <% }else if(question['type']=="Boolean" ){%>
+
+                                                              <% for (const key in question['options']) { %>
+                                                                <div class="input-group mb-2">
+                                                                  <div class="input-group-text">
+                                                                    <input type="radio" class="form-check-input"
+                                                                      name="<%=sectionName+'_'+i%>"
+                                                                      value="<%= question['options'][key] %>" required
+                                                                      <% if
+                                                                      (question['options'][key]==question['answer']) {
+                                                                      %>
+                                                                    checked <% } %> onclick="setAnswer(this,'<%-
+                                                                        question['type'] %>')">
+                                                                        <%= question['options'][key] %>
+                                                                  </div>
+                                                                </div>
+                                                                <% optionCount++ } %>
+
+                                                                  <% } %>
+                                                  </div>
+                                                  <input type="hidden" name="section[1]question[<%-i%>][answer]"
+                                                    id="answer<%-i%>" value="<%-question['answer']%>" readonly>
+                                                  <input type="hidden" name="section[1]question[<%-i%>][questionType]"
+                                                    id="questionType<%-i%>" value="<%- question ['type']%>" readonly>
                                                 </div>
                                               </div>
-                                              <% i++} %>
+                                              <% i++ } %>
                                                 <% } %>
-                                                  <div class="container px-1 mb-1 text-center">
-                                                    <button type="button" class="btn btn-outline-info rounded-pill"
-                                                      data-bs-toggle="modal" data-bs-target="#AddNewItem">
-                                                      Add <i class="bi bi-plus-circle"></i>
-                                                    </button>
-                                                    <button type="button"
-                                                      class="btn mb-1 btn-outline-danger rounded-pill removeSectionBtn"
-                                                      data-bs-toggle="modal" data-section="1">
-                                                      Delete <i class="bi bi-trash3"></i>
-                                                    </button>
-                                                  </div>
-                                            </div>
+                                      </div>
+                                      <div class="container px-1 mb-1 text-center">
+                                        <button type="button" class="btn btn-outline-info rounded-pill"
+                                          data-bs-toggle="modal" data-bs-target="#AddNewItem">
+                                          Add <i class="bi bi-plus-circle"></i>
+                                        </button>
+                                        <button type="button"
+                                          class="btn mb-1 btn-outline-danger rounded-pill removeSectionBtn"
+                                          data-bs-toggle="modal" data-section="<%- sectionCounter %>">
+                                          Delete <i class="bi bi-trash3"></i>
+                                        </button>
+                                      </div>
+
+
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <% } %>
-                                <% } %>
-                                  <textarea name="JsonFormData" id="JsonFormData" style="display: none;"></textarea>
-                            </div>
-                            <div class="container px-1 mb-1 text-center d-grid gap-2 col-2 mx-auto">
-                              <button type="submit" class="btn btn-outline-success">Save &nbsp;<i
-                                  class="bi bi-cloud-arrow-up"></i></button>
-                              <textarea name="JsonFormData" id="JsonFormData" style="display: none;"></textarea>
-                            </div>
-                    </form>
-                  </div>
+                                <% sectionCounter++ } %>
+                                  <% } %>
+
+                    </div>
+                    <div class="container px-1 mb-1 text-center d-grid gap-2 col-2 mx-auto">
+                      <button type="submit" class="btn btn-outline-success">Save &nbsp;<i
+                          class="bi bi-cloud-arrow-up"></i></button>
+                      <textarea name="JsonFormData" id="JsonFormData" style="display: none;"></textarea>
+                    </div>
+                  </form>
                 </div>
+                <button id="scrollTopButton" class="btn btn-outline-info btn-lg border border-0"><i
+                    class="bi bi-arrow-up-circle"></i></button>
+
+                <button id="scrollBottomButton" class="btn btn-outline-info btn-lg border border-0"><i
+                    class="bi bi-arrow-down-circle"></i></button>
+
+
                 <!-- Model for Image -->
-                <div class="modal fade z-3" id="Image_Model" tabindex="-1" aria-labelledby="Image_Model" aria-hidden="true">
+                <div class="modal fade " id="Image_Model" tabindex="-1" aria-labelledby="Image_Model"
+                  aria-hidden="true">
                   <div class="modal-dialog modal-xl modal-dialog-centered">
                     <div class="modal-content">
                       <div class="modal-header">
+                        <h5>Reference Image</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
                       <div class="modal-body">
@@ -201,7 +262,7 @@
                   </div>
                 </div>
                 <!-- Modal for add new items-->
-                <div class="modal fade z-3" id="AddNewItem" tabindex="-1" aria-labelledby="exampleModalLabel"
+                <div class="modal fade " id="AddNewItem" tabindex="-1" aria-labelledby="exampleModalLabel"
                   aria-hidden="true">
                   <div class="modal-dialog">
                     <div class="modal-content">
@@ -226,19 +287,17 @@
                     </div>
                   </div>
                 </div>
-             
+
               </body>
               <%- include('../partials/dependencies-js') %>
-                <script>
+                <script type="application/javascript">
                   document.getElementById("questionnaire").addEventListener('submit', (e) => {
                     e.preventDefault();
                     submitForm();
                   });
 
-                  // $('#Image_Model').on('show.bs.modal', function (event) {
-                  // });
-                </script>
-                <script>
+                  $('#Image_Model').on('show.bs.modal', function (event) {
+                  });
                 </script>
 
 </html>

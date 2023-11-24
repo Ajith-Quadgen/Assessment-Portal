@@ -72,6 +72,14 @@
                     value="<%= jsonData.TotalScore %>" min="0" required readonly>
                 </div>
               </div>
+              <div class="col-md">
+                <div class="input-group mb-3" data-bs-toggle="tooltip"
+                  data-bs-title="The Course Name to be Printed on Certificate ">
+                  <span class="input-group-text" for="AssessmentCertificateName">Course Name</span>
+                  <input type="text" name="AssessmentCertificateName" id="AssessmentCertificateName"
+                    minlength="10" class="form-control" value="<%= result.Certificate_Name %>" required readonly>
+                </div>
+              </div>
             </div>
             <div class="row">
               <div class="col-md">
@@ -106,7 +114,9 @@
           <input type="hidden" name="AssessmentKey" id="AssessmentKey" value="<%= result.AssesmentKey %>" readonly>
           <input type="hidden" name="AssessmentRemarks" id="AssessmentRemarks" value="" readonly>
           <!-- Loop through sections -->
+          <% var i=1; %>
           <% for (const sectionName in jsonData) { %>
+            
             <% if (sectionName.startsWith('Section')) { %>
               <% const section=jsonData[sectionName]; %>
                 <div class="accordion section m-2" id="accordion<%= sectionName %>">
@@ -124,26 +134,30 @@
                     <div id="<%= sectionName %>" class="accordion-collapse collapse show"
                       data-bs-parent="#accordion<%= sectionName %>">
                       <div class="accordion-body" id="questionsContainer1">
-                        <% var i=1; %>
+                        
                           <% for (const questionName in section) { %>
 
                             <% if (questionName !=='MaxScore' && questionName!="SectionName" ) { %>
                               <% const question=section[questionName]; %>
                                 <div class="questionn">
-                                  <div class="d-flex  align-items-end  m-2 p-1 ">
-                                    <p class="fs-5 flex-grow-1"><b>
+                                  <div class="d-flex  align-items-center  m-2">
+                                    <p class="fs-5 flex-grow-1 d-flex  align-items-end m-0">
+                                      <b>
                                         Question <%= i %>
                                       </b>
-                                      <textarea name="" id="" cols="160" rows="1" class="form-control"
-                                        readonly><%= question['question'] %></textarea>
-                                    </p>
-                                    <p style="margin-left:10px ;"><b>Point:</b>
-                                      <%= question['point'] %>
+                                      <p class="m-0"><b>Point:</b>
+                                        <%= question['point'] %>
+                                      </p>
                                     </p>
                                   </div>
+                                      <textarea name="" id="" cols="160" rows="1" class="form-control"
+                                        readonly><%= question['question'] %></textarea>
+                                    
+
+                                  
                                   <% if (question['referenceImage'] ) { %>
                                     <div>
-                                      <img id="uploadedImage" class="rounded img-thumbnail"
+                                      <img id="uploadedImage" class="rounded img-thumbnail m-2"
                                         src="../../public/uploads/Trainer/<%= question['referenceImage'] %>"
                                         alt="Uploaded Image" height="100" width="100" onclick="ExpandImage(this)"
                                         data-bs-toggle="modal" data-bs-target="#Image_Model" />
@@ -153,7 +167,7 @@
                                       <div class="d-flex flex-column fs-5">
                                         <% for (const key in question['options']) { %>
 
-                                          <div class="p-1 m-1">
+                                          <div class="p-1">
                                             <input type="radio" class="form-check-input"
                                               name="<%=sectionName+'_'+questionName%>"
                                               value="<%= question['options'][key] %>" required>
@@ -164,7 +178,7 @@
 
                                           <% } %>
                                       </div>
-                                      <div>
+                                      <div class="text-success">
                                         Answer: <%=question['answer'] %>
                                       </div>
                                 </div>
@@ -181,20 +195,31 @@
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                       <% if(result.Status=="Draft" ){%> 
                         
-                        <button class="btn btn-outline-primary me-md-2" type="button" id="Publishbtn">Edit <i class="bi bi-pencil-square"></i></button>
-                        
+                        <a href="/Trainer/editAssessment?AssesmentKey=<%= result.AssesmentKey %>"
+                          class="btn btn-outline-info m-1">Edit <i class="bi bi-pencil-square"></i></a>                        
                         <% } %>
-                      <button class="btn btn-outline-success me-md-2" type="button" id="Publishbtn" <% if(result.Status=="Published" ){%> disabled >Already Published  <% } %> > Publish <i
+                        <% if(result.Status!="Revoked" ){%> 
+                      <button class="btn btn-outline-success m-1" type="button" id="Publishbtn" <% if(result.Status=="Published" ){%> disabled > Already Published  <% } else{ %> > Publish <% } %><i
                             class="bi bi-cloud-arrow-up"></i></button>
-                      <textarea name="JsonFormData" id="JsonFormData" style="display: none;"></textarea>
+
+                            <a href="/Trainer/trashAssessment?AssesmentKey=<%= result.AssesmentKey %>"
+                              class="btn btn-outline-danger m-1">Move to Trash <i class="bi bi-trash"></i></a> 
+                            <% } %>
+                            <textarea name="JsonFormData" id="JsonFormData" style="display: none;"></textarea>
                     </div>
         </form>
       </div>
+      <button id="scrollTopButton" class="btn btn-outline-info btn-lg border border-0"><i class="bi bi-arrow-up-circle"></i></button>
+
+      <button id="scrollBottomButton" class="btn btn-outline-info btn-lg border border-0"><i class="bi bi-arrow-down-circle"></i></button>
+      
+
       <!-- Model for Image -->
       <div class="modal fade" id="Image_Model" tabindex="-1" aria-labelledby="Image_Model" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
+              <h5>Reference Image</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

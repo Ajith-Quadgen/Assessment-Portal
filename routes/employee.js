@@ -1,7 +1,9 @@
 const express = require('express');
 const employee_router = express.Router()
 const db=require('../DataBaseConnection')
-
+function getTimeStamp() {
+  return (new Date().toISOString().slice(0, 10) + " " + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata' }));
+}
 employee_router.get('/', (req, res) => {
     if (req.session.UserID && req.session.UserRole == "Employee") {
       let message;

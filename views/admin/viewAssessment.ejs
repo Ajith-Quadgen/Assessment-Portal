@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%- title %></title>
+    <%- include('../partials/dependencies') %>
+</head>
+
+<body>
+    <header>
+        <% if(Role=="Admin" ){ %>
+            <%- include('../partials/admin-header',{title:title}) %>
+                <% }else if(Role=="Employee" ){ %>
+                    <%- include('../partials/employee-header',{title:title}) %>
+                        <%} if(Role=="Trainer" ){ %>
+                            <%- include('../partials/trainer-header',{title:title}) %>
+                                <%}%>
+    </header>
+    <div class="w-100" style="position: absolute; top: 100px;">
+        <div>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-draft-tab" data-bs-toggle="tab" data-bs-target="#nav-draft"
+                    type="button" role="tab" aria-controls="nav-draft" aria-selected="true"><i
+                        class="bi bi-file-earmark"></i> &nbsp;Draft</button>
+
+                <button class="nav-link" id="nav-published-tab" data-bs-toggle="tab" data-bs-target="#nav-published"
+                    type="button" role="tab" aria-controls="nav-published" aria-selected="false"><i
+                        class="bi bi-send-check"></i> &nbsp;Published</button>
+
+                <button class="nav-link" id="nav-trash-tab" data-bs-toggle="tab" data-bs-target="#nav-trash"
+                    type="button" role="tab" aria-controls="nav-trash" aria-selected="false"><i class="bi bi-trash"></i>
+                    &nbsp;Trash</button>
+            </div>
+
+        </div>
+        <div class="tab-content" id="nav-tabContent">
+            <!-- Published Tab -->
+            <div class="tab-pane fade" id="nav-published" role="tabpanel" aria-labelledby="nav-published-tab"
+                tabindex="0">
+                <div class="d-flex justify-content-md-center flex-wrap">
+                    <% for( let index=0; index < data.length; index++ ) { %>
+                        <% if (data[index].status=="Published" ) { %>
+
+
+                            <div class="card m-2 localCard">
+                                <div class="card-body fs-6">
+                                    <h5 class="card-title btn <% if(data[index].status==" Draft"){%>btn-warning
+                                        <%}else{%>btn-success
+                                            text-light<%} %> rounded-pill">
+                                                <%= data[index].AssessmentName %>
+                                    </h5>
+                                    <!-- <h6 class="card-subtitle mb-2 text-body-secondary rounded-pill">
+                                <%= data[index].Description %>
+                            </h6> -->
+                                    <p class="card-text"><b>Status:</b>
+                                        <%= data[index].status %>
+                                    </p>
+                                    <p class="card-text"><b>Duration:</b>
+                                        <%= data[index].Duration %> min.
+                                    </p>
+                                    <p class="card-text"><b>Total Score:</b>
+                                        <%= data[index].MaximumScore %>
+                                    </p>
+                                    </p>
+                                    <p class="card-text"><b>Key:</b>
+                                        <%= data[index].AssessmentKey %>
+                                    </p>
+                                </div>
+                                <div
+                                    class="card-footer text-body-secondary d-flex justify-content-between align-center">
+                                    <a class="btn btn-outline-primary btn-sm position-relative"
+                                        href="/Trainer/viewResponces?AssessmentID=<%= data[index].AssessmentID %>">
+                                        Responses
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ">
+                                            <%= data[index].ResponseCount %>
+
+                                        </span>
+                                    </a>
+                                    <% if (data[index].status=="Draft" ) { %>
+                                        <a href="/Trainer/editAssessment?AssessmentKey=<%= data[index].AssessmentKey %>"
+                                            class="btn btn-outline-secondary btn-sm">Edit <i
+                                                class="bi bi-pencil-square"></i></a>
+                                        <% } %>
+
+                                            <a href="/Trainer/viewAssessment?AssessmentKey=<%= data[index].AssessmentKey %>"
+                                                class="btn btn-outline-info btn-sm">Preview <i
+                                                    class="bi bi-eye"></i></a>
+                                </div>
+                            </div>
+                            <% } %>
+                                <% } %>
+                </div>
+            </div>
+            <!-- Draft Tab  -->
+            <div class="tab-pane fade show active" id="nav-draft" role="tabpanel" aria-labelledby="nav-draft-tab"
+                tabindex="0">
+                <div class="d-flex justify-content-md-center flex-wrap">
+                    <% for( let index=0; index < data.length; index++ ) { %>
+                        <% if (data[index].status=="Draft" ) { %>
+                            <div class="card m-2 localCard">
+                                <div class="card-body fs-6">
+                                    <h5 class="card-title btn <% if(data[index].status=="Draft"){%>btn-warning
+                                        <%}else{%>btn-success
+                                            text-light<%} %> rounded-pill">
+                                                <%= data[index].AssessmentName %>
+                                    </h5>
+                                    <!-- <h6 class="card-subtitle mb-2 text-body-secondary rounded-pill">
+                                <%= data[index].Description %>
+                            </h6> -->
+                                    <p class="card-text"><b>Status:</b>
+                                        <%= data[index].status %>
+                                    </p>
+                                    <p class="card-text"><b>Duration:</b>
+                                        <%= data[index].Duration %> min.
+                                    </p>
+                                    <p class="card-text"><b>Total Score:</b>
+                                        <%= data[index].MaximumScore %>
+                                    </p>
+                                    </p>
+                                    <p class="card-text"><b>Key:</b>
+                                        <span id="key">
+                                            <%=data[index].AssessmentKey%> <button type="button" data-bs-toggle="tooltip" data-bs-title="Copy the Assessment Key"
+                                                    class="btn m-0 p-0 border border-0" onclick="Copy(this)"><svg
+                                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd"
+                                                            d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z" />
+                                                    </svg></button>
+                                        </span>
+                                    </p>
+                                </div>
+                                <div
+                                    class="card-footer text-body-secondary d-flex justify-content-between align-center">
+                                    <a class="btn btn-outline-primary btn-sm position-relative"
+                                        href="/Trainer/viewResponces?AssessmentID=<%= data[index].AssessmentID %>">
+                                        Responses
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ">
+                                            <%= data[index].ResponseCount %>
+
+                                        </span>
+                                    </a>
+                                    <% if (data[index].status=="Draft" ) { %>
+                                        <a href="/Trainer/editAssessment?AssessmentKey=<%= data[index].AssessmentKey %>"
+                                            class="btn btn-outline-secondary btn-sm">Edit <i
+                                                class="bi bi-pencil-square"></i></a>
+                                        <% } %>
+
+                                            <a href="/Trainer/viewAssessment?AssessmentKey=<%= data[index].AssessmentKey %>"
+                                                class="btn btn-outline-info btn-sm">Preview <i
+                                                    class="bi bi-eye"></i></a>
+                                </div>
+                            </div>
+                            <% } %>
+                                <% } %>
+                </div>
+            </div>
+            <!-- Trash Tab -->
+            <div class="tab-pane fade" id="nav-trash" role="tabpanel" aria-labelledby="nav-trash-tab" tabindex="0">
+                <div class="d-flex justify-content-md-center flex-wrap">
+                    <% for( let index=0; index < data.length; index++ ) { %>
+                        <% if (data[index].status=="Revoked" ) { %>
+                            <div class="card m-2 localCard">
+                                <div class="card-body fs-6">
+                                    <h5 class="card-title btn <% if(data[index].status==" Draft"){%>btn-warning
+                                        <%}else{%>btn-danger
+                                            text-light<%} %> rounded-pill">
+                                                <%= data[index].AssessmentName %>
+                                    </h5>
+                                    <!-- <h6 class="card-subtitle mb-2 text-body-secondary rounded-pill">
+                                <%= data[index].Description %>
+                            </h6> -->
+                                    <p class="card-text"><b>Status:</b>
+                                        <%= data[index].status %>
+                                    </p>
+                                    <p class="card-text"><b>Duration:</b>
+                                        <%= data[index].Duration %> min.
+                                    </p>
+                                    <p class="card-text"><b>Total Score:</b>
+                                        <%= data[index].MaximumScore %>
+                                    </p>
+                                    </p>
+                                    <p class="card-text"><b>Key:</b>
+                                        <%= data[index].AssessmentKey %>
+                                    </p>
+                                </div>
+                                <div
+                                    class="card-footer text-body-secondary d-flex justify-content-between align-center">
+                                    <a href="/Trainer/viewAssessment?AssessmentKey=<%= data[index].AssessmentKey %>"
+                                        class="btn btn-outline-info btn-sm">Preview <i class="bi bi-eye"></i></a>
+                                </div>
+                            </div>
+                            <% } %>
+                                <% } %>
+                </div>
+            </div>
+        </div>
+        <!--        
+                    <section id="notification-tab">
+                        <div class="notification-area">
+                            <p>Notification</p>
+                        </div>
+                    </section> -->
+
+    </div>
+
+
+
+</body>
+<%- include('../partials/dependencies-js') %>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('Message');
+        if (message) {
+            alert(message);
+            window.location.replace('/')
+        }
+        function Copy(e) {
+            navigator.clipboard.writeText(document.getElementById("key").innerText.toString().replaceAll(" ","")).then(()=>{
+                e.innerHTML='<i class="bi bi-clipboard-check"></i>'
+            })
+        }
+    </script>
+
+</html>

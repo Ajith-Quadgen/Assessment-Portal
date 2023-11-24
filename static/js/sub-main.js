@@ -27,6 +27,34 @@ function enterFullScreen(element) {
     const isScreenEqualToPage = screenWidth === pageWidth && screenHeight === pageHeight;
     return isScreenEqualToPage;
   }
-  // document.documentElement.addEventListener('mouseleave', () => {
-  //   alert("Out")
-  // })
+// Show or hide buttons based on scroll position
+window.addEventListener('scroll', function() {
+  const scrollTopButton = document.getElementById('scrollTopButton');
+  const scrollBottomButton = document.getElementById('scrollBottomButton');
+
+  if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+    scrollTopButton.style.display = 'block';
+    scrollBottomButton.style.display = 'block';
+  } else {
+    scrollTopButton.style.display = 'none';
+    scrollBottomButton.style.display = 'none';
+  }
+});
+
+if(document.getElementById('scrollTopButton')){
+// Scroll to top when the "Scroll to Top" button is clicked
+document.getElementById('scrollTopButton').addEventListener('click', function() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
+
+// Scroll to bottom when the "Scroll to Bottom" button is clicked
+document.getElementById('scrollBottomButton').addEventListener('click', function() {
+  window.scrollTo({
+    top: document.documentElement.scrollHeight,
+    behavior: 'smooth'
+  });
+});
+}

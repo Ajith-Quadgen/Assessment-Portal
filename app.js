@@ -26,7 +26,9 @@ app.engine('html', require('ejs').renderFile);
 app.set("view engine", "ejs");
 app.use(express.static(`${__dirname}`));
 app.use(express.static('public'))
-app.use('/public',express.static('public'))
+app.use('/public', express.static('public'))
+
+process.env.tz = 'Asia/Calcutta';
 app.use(session({
   resave: false,
   saveUninitialized: true,
@@ -64,7 +66,9 @@ const myFileFilter = (req, file, error) => {
   }
 };
 const upload = multer({ storage: myStorage, limits: { fileSize: 500000 } }).single("myQCImage");
-
+function getTimeStamp() {
+  return (new Date().toISOString().slice(0, 10) + " " + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata' }));
+}
 app.post('/uploadImage', (req, res) => {
   if (req.session.UserID) {
     upload(req, res, function (err) {
@@ -106,81 +110,6 @@ let dt = dateTime.create();
 let CurrentDate = dt.format('Y-m-d H:M:S');
 
 app.get('/', async (req, res) => {
-
-  try {
-   let Certificate_Name = `Certificate.pdf`
-   let certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
-    const canvas = createCanvas(1280, 720,'pdf'); // Adjust the canvas size as needed
-    const ctx = canvas.getContext('2d');
-    const result=[
-      {
-        employeeName:"Ajith Kumar",
-        AssessmentName:"Node JS "
-
-      }
-    ]
-    // Load background image
-    loadImage('Template-11.png').then((image) => {
-      //ctx.addPage()
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    
-      // // Load custom font (if needed)
-     // registerFont('./static/Font/fruitella-rgzgk.ttf', { family: 'fruitella-rgzgk' });
-        // Customize text properties
-        ctx.font = '30px serif'; // Use your own font and size
-        ctx.fillStyle = 'black'; // Text color
-    
-        // Calculate X-coordinate for horizontal alignment
-        let Course="Awarded to";
-        let CourseWidth = ctx.measureText(Course).width;
-        let Course_xPosition = (canvas.width - CourseWidth) / 2;
-        // Draw the text on the certificate
-        ctx.fillText(Course, Course_xPosition, 270);
-  
-        ctx.font = '60px serif';
-        ctx.fillStyle = '#6fbee1'; 
-        const Name = `${result[0].employeeName}`;
-        const NameWidth = ctx.measureText(Name).width;
-        const Name_xPosition = (canvas.width - NameWidth) / 2;
-        // Draw the text on the certificate
-        ctx.fillText(Name, Name_xPosition, 350);
-  
-  
-        ctx.font = '30px serif';
-        ctx.fillStyle = 'black';
-        Course = `On`;
-         CourseWidth = ctx.measureText(Course).width;
-         Course_xPosition = (canvas.width - CourseWidth) / 2;
-        // Draw the text on the certificate
-        ctx.fillText(Course, Course_xPosition, 420);
-  
-        ctx.font = '44px serif';
-        Course = `${result[0]['AssessmentName']}`;
-        CourseWidth = ctx.measureText(Course).width;
-        Course_xPosition = (canvas.width - CourseWidth) / 2;
-       // Draw the text on the certificate
-       ctx.fillText(Course, Course_xPosition, 490);
-  
-  
-        ctx.font = '30px sans';
-     
-        let Current_Date=new Date().toLocaleDateString('en-US').replaceAll('/','-');
-        Current_Date=`Dated: ${Current_Date}`
-        const DateWidth = ctx.measureText(Current_Date).width;
-        const Date_xPosition = (canvas.width - DateWidth) / 2;
-        // Draw the text on the certificate
-        ctx.fillText(Current_Date, Date_xPosition, 560);
-    
-        // Save the certificate as an image (e.g., PNG)
-        const stream = canvas.createPDFStream();
-       // const stream = canvas.createPNGStream();
-        const outputFile = fs.createWriteStream(certificatePath);
-        stream.pipe(outputFile);
-    });
-  } catch (err) {
-    console.error('Certificate generation and saving failed:', err);
-  }
-
   if (req.session.UserID) {
     switch (req.session.UserRole) {
       case "Employee":
@@ -226,8 +155,8 @@ app.get('/login', (req, res) => {
 
 app.post('/AuthenticateLogin', (req, res) => {
   var UserInfo = req.body;
-  db.query("select * from userlogin where empId=? or email=? and password=? and status='Active'", [UserInfo.Username, UserInfo.Username, UserInfo.password], function (error, result) {
-    if (error) throw error;
+  db.query("select * from userlogin where empId=? and password=? and status='Active'", [UserInfo.Username, UserInfo.password], function (error, result) {
+    if (error) console.log(error);
     if (result.length > 0) {
       db.query("update userlogin set lastSeen=? where empId=?", [CurrentDate, result[0].empId], function (error, result) {
         if (error) throw error;
@@ -270,7 +199,8 @@ app.post('/submit-questionnaire', (req, res) => {
       "Duration": FormData.Duration,
       "CreatedOn": CurrentDate,
       "CreatedBy": req.session.UserID,
-      "AssesmentKey": randomString
+      "AssesmentKey": randomString,
+      "Certificate_Name": FormData.CertificateName
     };
     db.query("Insert into assessments set?", [inputData], function (error, result) {
       if (error) throw error
@@ -278,7 +208,7 @@ app.post('/submit-questionnaire', (req, res) => {
         return res.redirect('/Trainer');
     });
   } else {
-    res.status(400).send("Access Denied")
+    res.redirect('/')
   }
 });
 
@@ -323,10 +253,10 @@ app.post('/oldVerifyAssessmentKey', (req, res) => {
 app.post('/ExamHall', (req, res) => {
   if (req.session.UserID) {
     let jsonData, queryData;
-    db.query("select * from assessments where AssesmentKey=? and Status='Published'", [req.body.AssesmentKey], function (error, result) {
+    db.query("select * from assessments where AssesmentKey=? and Status='Published' and CreatedBy!=?", [req.body.AssesmentKey,req.session.UserID], function (error, result) {
       if (result.length > 0) {
         jsonData = JSON.parse(result[0].Questionnaire);
-        res.render('Employees/takeAssessment', { jsonData: jsonData, "result": result[0], message: null, user: req.session.UserRole,title:"Assessment Page" });
+        res.render('Employees/takeAssessment', { jsonData: jsonData, "result": result[0], message: null, user: req.session.UserRole, title: "Assessment Page" });
       } else {
         const queryData = queryString.stringify({
           message: Buffer.from("Invalid Assessment Key").toString('base64')
@@ -335,7 +265,7 @@ app.post('/ExamHall', (req, res) => {
       }
     });
   } else {
-    res.status(400).send("Access Denied");
+    res.redirect('/');
   }
 })
 
@@ -471,69 +401,104 @@ app.post('/submit-assessment', async (req, res) => {
           theOutput.page.margins.bottom = oldBottomMargin;
         }
         theOutput.end()
-        let { certificatePath, Certificate_Name } = "";
+        let { certificatePath, Certificate_Name, tempCertificatePath, tempCertificate_Name } = "";
         if (resultLabel == "Cleared") {
           try {
-            Certificate_Name = `${req.session.UserID}_${Date.now()}_${result[0]['AssessmentName']}_Certificate.pdf`
+            const x = `${req.session.UserID}_${Date.now()}`
+            Certificate_Name = `${x}_${result[0]['AssessmentName']}_Certificate.pdf`
+            tempCertificate_Name = `${x}_${result[0]['AssessmentName']}_Certificate.png`
+
             certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
-            const canvas = createCanvas(1280, 720,'pdf'); // Adjust the canvas size as needed
-            const ctx = canvas.getContext('2d');
-            
+            tempCertificatePath = `./public/Generated/Temp/${tempCertificate_Name}`;
+
             // Load background image
             loadImage('Template-11.png').then((image) => {
+              // Creating PDf Certificate
+              let canvas = createCanvas(1280, 720, 'pdf'); // Adjust the canvas size as needed
+              let ctx = canvas.getContext('2d');
               ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-            
-              // // Load custom font (if needed)
-             // registerFont('./static/Font/fruitella-rgzgk.ttf', { family: 'fruitella-rgzgk' });
-                // Customize text properties
-                ctx.font = '30px serif'; // Use your own font and size
-                ctx.fillStyle = 'black'; // Text color
-            
-                // Calculate X-coordinate for horizontal alignment
-                let Course="Awarded to";
-                let CourseWidth = ctx.measureText(Course).width;
-                let Course_xPosition = (canvas.width - CourseWidth) / 2;
-                // Draw the text on the certificate
-                ctx.fillText(Course, Course_xPosition, 270);
-          
-                ctx.font = '60px serif';
-                ctx.fillStyle = '#6fbee1'; 
-                const Name = `${result[0].employeeName}`;
-                const NameWidth = ctx.measureText(Name).width;
-                const Name_xPosition = (canvas.width - NameWidth) / 2;
-                // Draw the text on the certificate
-                ctx.fillText(Name, Name_xPosition, 350);
-          
-          
-                ctx.font = '30px serif';
-                ctx.fillStyle = 'black';
-                Course = `On`;
-                 CourseWidth = ctx.measureText(Course).width;
-                 Course_xPosition = (canvas.width - CourseWidth) / 2;
-                // Draw the text on the certificate
-                ctx.fillText(Course, Course_xPosition, 420);
-          
-                ctx.font = '44px serif';
-                Course = `${result[0]['AssessmentName']}`;
-                CourseWidth = ctx.measureText(Course).width;
-                Course_xPosition = (canvas.width - CourseWidth) / 2;
-               // Draw the text on the certificate
-               ctx.fillText(Course, Course_xPosition, 490);
-          
-          
-                ctx.font = '30px sans';
-             
-                let Current_Date=new Date().toLocaleDateString('en-US').replaceAll('/','-');
-                Current_Date=`Dated: ${Current_Date}`
-                const DateWidth = ctx.measureText(Current_Date).width;
-                const Date_xPosition = (canvas.width - DateWidth) / 2;
-                // Draw the text on the certificate
-                ctx.fillText(Current_Date, Date_xPosition, 560);
-            
-                // Save the certificate as an image (e.g., PNG)
-                const stream = canvas.createPDFStream();
-                const outputFile = fs.createWriteStream(certificatePath);
-                stream.pipe(outputFile);
+              ctx.font = '30px serif'; // Use your own font and size
+              ctx.fillStyle = 'black'; // Text color
+              // Calculate X-coordinate for horizontal alignment
+              let Course = "Awarded to";
+              let CourseWidth = ctx.measureText(Course).width;
+              let Course_xPosition = (canvas.width - CourseWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Course, Course_xPosition, 270);
+              ctx.font = '60px serif';
+              ctx.fillStyle = '#6fbee1';
+              let Name = `${result[0].employeeName}`;
+              let NameWidth = ctx.measureText(Name).width;
+              let Name_xPosition = (canvas.width - NameWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Name, Name_xPosition, 350);
+              ctx.font = '30px serif';
+              ctx.fillStyle = 'black';
+              Course = `On`;
+              CourseWidth = ctx.measureText(Course).width;
+              Course_xPosition = (canvas.width - CourseWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Course, Course_xPosition, 420);
+              ctx.font = '44px serif';
+              Course = `${result[0]['Certificate_Name']}`;
+              CourseWidth = ctx.measureText(Course).width;
+              Course_xPosition = (canvas.width - CourseWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Course, Course_xPosition, 490);
+              ctx.font = '30px sans';
+              let Current_Date = new Date().toLocaleDateString('en-US').replaceAll('/', '-');
+              Current_Date = `Dated: ${Current_Date}`
+              let DateWidth = ctx.measureText(Current_Date).width;
+              let Date_xPosition = (canvas.width - DateWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Current_Date, Date_xPosition, 560);
+              const stream = canvas.createPDFStream();
+              const outputFile = fs.createWriteStream(certificatePath);
+              stream.pipe(outputFile);
+
+              // Creating Image Certificate
+              canvas = createCanvas(1280, 720); // Adjust the canvas size as needed
+              ctx = canvas.getContext('2d');
+              ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+              ctx.font = '30px serif'; // Use your own font and size
+              ctx.fillStyle = 'black'; // Text color
+              // Calculate X-coordinate for horizontal alignment
+              Course = "Awarded to";
+              CourseWidth = ctx.measureText(Course).width;
+              Course_xPosition = (canvas.width - CourseWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Course, Course_xPosition, 270);
+              ctx.font = '60px serif';
+              ctx.fillStyle = '#6fbee1';
+              Name = `${result[0].employeeName}`;
+              NameWidth = ctx.measureText(Name).width;
+              Name_xPosition = (canvas.width - NameWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Name, Name_xPosition, 350);
+              ctx.font = '30px serif';
+              ctx.fillStyle = 'black';
+              Course = `On`;
+              CourseWidth = ctx.measureText(Course).width;
+              Course_xPosition = (canvas.width - CourseWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Course, Course_xPosition, 420);
+              ctx.font = '44px serif';
+              Course = `${result[0]['Certificate_Name']}`;
+              CourseWidth = ctx.measureText(Course).width;
+              Course_xPosition = (canvas.width - CourseWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Course, Course_xPosition, 490);
+              ctx.font = '30px sans';
+              Current_Date = new Date().toLocaleDateString('en-US').replaceAll('/', '-');
+              Current_Date = `Dated: ${Current_Date}`
+              DateWidth = ctx.measureText(Current_Date).width;
+              Date_xPosition = (canvas.width - DateWidth) / 2;
+              // Draw the text on the certificate
+              ctx.fillText(Current_Date, Date_xPosition, 560);
+              const imageStream = canvas.createPNGStream();
+              const TempOutputFile = fs.createWriteStream(tempCertificatePath);
+              imageStream.pipe(TempOutputFile);
+              TempOutputFile.on('finish', () => console.log('The JPEG file was created.'));
             });
           } catch (err) {
             console.error('Certificate generation and saving failed:', err);
@@ -559,7 +524,7 @@ app.post('/submit-assessment', async (req, res) => {
             if (error2) {
               console.log(error2)
             } else {
-              res.render('Employees/Result', { Result: Result,Role:req.session.UserRole,title:"Assessment Result" });
+              res.render('Employees/Result', { Result: Result, Role: req.session.UserRole, title: "Assessment Result", Certificate_Name: Certificate_Name,Certificate_Name_Image:tempCertificate_Name });
             }
           });
         });
@@ -570,13 +535,9 @@ app.post('/submit-assessment', async (req, res) => {
   }
 });
 
-
-app.get('/Error', (req, res) => {
-  res.render('error');
-});
 app.get('/changePassword', async (req, res) => {
   if (req.session.UserID) {
-    res.render('ChangePassword',{Role:req.session.UserRole,title:"Change Password"})
+    res.render('ChangePassword', { userName: req.session.UserName, Role: req.session.UserRole, title: "Change Password" })
   } else {
     res.redirect('/login');
   }
@@ -586,7 +547,6 @@ app.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/');
 });
-
 app.get('*', async (req, res) => {
   res.redirect('/login');
   //res.status(400).send("Page Not Found");

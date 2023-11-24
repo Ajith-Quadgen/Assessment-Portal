@@ -246,7 +246,25 @@
         document.getElementById("nextbtn").addEventListener('click', () => {
             $("#APIResponceModel").modal('hide');
             document.getElementById("AssessmentEntryForm").submit();
+            window.location.reload();
         })
+        navigator.clipboard
+            .readText()
+            .then((copiedText) => {
+                if (copiedText.length == 30) {
+                    document.getElementById("AssesmentKey").value = copiedText;
+                    //document.getElementById("AssesmentKey").focus();
+                }
+            });
+        window.addEventListener('beforeunload', function (e) {
+            // Cancel the event
+            e.preventDefault(); // Necessary to work on some browsers
+            // Chrome requires this to be set
+            e.returnValue = '';
+
+            // Custom message to display
+            return 'Your custom message here'; // This message will be displayed along with the browser's default message
+        });
     </script>
 
 </html>

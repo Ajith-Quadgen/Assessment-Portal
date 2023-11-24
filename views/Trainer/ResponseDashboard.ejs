@@ -26,23 +26,23 @@
                         <button type="button" class="btn btn-outline-primary" id="DownloadResponec">Download <i class="bi bi-cloud-download"></i></button>
                 </div>
                     <% } %>
-                <table class="table table-hover m-2 AVRTable table-striped caption-top rounded-4 overflow-hidden">
+                <table class="table table-hover table-sm m-2 AVRTable rounded-4 overflow-hidden">
                     <thead class="table-dark">
-                        <tr>
+                        <tr class="text-center">
                             <th scope="col"> Sl.No</th>
-                            <th scope="col">Submitted Date</th>
-                            <th scope="col">Employee Name</th>
-                            <th scope="col">Secured Marks</th>
+                            <th scope="col">Date/Time</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Marks</th>
                             <th scope="col">Percentage</th>
                             <th scope="col">Result</th>
                             <th scope="col">Remarks</th>
-                            <th scope="col">View Response</th>
+                            <th scope="col">Responses</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% if (Object.values(Data).length>0) { %>
                             <% for( let index=0; index < Object.values(Data).length; index++ ) { %>
-                                <tr>
+                                <tr class="text-center">
                                     <td>
                                         <%= index+1%>
                                     </td>
@@ -67,12 +67,11 @@
                                     <td>
                                         <% if ( Data[index]["Report"]) { %>
 
-                                            <a href="../../public/Generated/AssessmentReport/<%= Data[index][" Report"]
-                                                %>" target="_blank">Download</a>
+                                            <a href="../../public/Generated/AssessmentReport/<%= Data[index]["Report"]
+                                                %>" target="_blank" >Download</a>
 
                                             <% } %>
                                     </td>
-
                                 </tr>
                                 <% } %>
                                     <% } else { %>

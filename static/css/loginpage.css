@@ -5,6 +5,7 @@ html {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  scroll-behavior: smooth;
 }
 
 h4 {
@@ -274,7 +275,7 @@ input:focus {
   width: auto;
   height: auto;
   background: #ffffff;
-  border-radius: 4px;
+  border-radius: 10px;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   overflow: hidden;
   top: 55%;

@@ -19,6 +19,7 @@
 }
 
 .question {
+  border-radius: 10px;
   margin: 1%;
   padding: 1%;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -150,6 +151,7 @@ input[type=radio] {
 
 .localCard {
   transition: 0.2s ease-in-out;
+  max-width: 400px;
 }
 
 .localCard:hover {
@@ -200,4 +202,43 @@ writing-mode: vertical-rl;
 }
 .modal-backdrop {
   z-index: -1 !important;
+}
+.slide-right {
+	-webkit-animation: slide-right 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940)  both;
+	        animation: slide-right 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940)  both;
+}
+/*
+ * ----------------------------------------
+ * animation slide-right
+ * ----------------------------------------
+ */
+ @-webkit-keyframes slide-right {
+  0% {
+    -webkit-transform: translateY(-450px);
+            transform: translateY(-450px);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+  }
+}
+@keyframes slide-right {
+  0% {
+    -webkit-transform: translateY(-450px);
+            transform: translateY(-450px);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+  }
+}
+
+#confetti {
+  overflow-y: hidden;
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  height: 100%;
+  position: absolute;
+  top: 0;
 }

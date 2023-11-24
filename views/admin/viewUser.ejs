@@ -8,6 +8,8 @@
     <title><%- title %></title>
     <%- include('../partials/dependencies') %>
 </head>
+<style>
+</style>
 
 <body>
     <header>
@@ -20,17 +22,32 @@
                                 <%}%>
     </header>
     <main class="main_container">
+        <div class="d-flex w-100 justify-content-center align-items-center">
+            <div class="input-group m-2 " style="width: max-content;">
+                <input type="text" class="form-control rounded-end rounded-pill" placeholder="Enter Name/Employee-ID"
+                    aria-label="Recipient's username" aria-describedby="FilterBtn" id="SearchBox">
+                <button class="btn btn-success rounded-start rounded-pill" type="button" id="FilterBtn"><i
+                        class="bi bi-search"></i></button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline-primary rounded-pill" data-bs-toggle="modal"
+                    data-bs-target="#AddUserModal">
+                    Add User <i class="bi bi-person-add"></i>
+                </button>
+            </div>
+        </div>
         <div class="d-flex w-100">
-            <table class="table table-hover m-2 AVRTable table-striped caption-top">
-                <thead class="table-dark">
-                    <tr>
+
+            <table class="table table-hover rounded-3 overflow-hidden table-sm m-2 AVRTable">
+                <thead class="table-dark ">
+                    <tr class="text-center">
                         <th scope="col">Sl.No</th>
                         <th scope="col">Employee ID</th>
                         <th scope="col">Employee Name</th>
                         <th scope="col">Email</th>
-                        <th scope="col">Role</th>
+                        <th scope="col">Role<br>(Employee/Trainer)</th>
                         <th scope="col">Last Seen</th>
-                        <th scope="col">Status</th>
+                        <th scope="col" colspan="2">Status</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -44,29 +61,60 @@
                                 <td>
                                     <%= Data[index].empId %>
                                 </td>
-                                <td>
-                                    <%= Data[index].employeeName %>
+                                <td><span id="name_<%=Data[index].empId %>"
+                                        onclick="makeEditable('name_<%=Data[index].empId %>')">
+                                        <%= Data[index].employeeName %>
+                                    </span>
+                                    <input type="text" class="form-control" id="input_name_<%=Data[index].empId %>"
+                                        value="<%= Data[index].employeeName %>" style="display:none;width: 100%;">
                                 </td>
                                 <td>
-                                    <%= Data[index].email %>
+                                    <span id="email_<%=Data[index].empId %>"
+                                        onclick="makeEditable('email_<%=Data[index].empId %>')">
+                                        <%= Data[index].email %>
+                                    </span>
+                                    <input type="text" class="form-control"  id="input_email_<%=Data[index].empId %>"
+                                        value="<%= Data[index].email %>" style="display:none; width: 100%">
                                 </td>
                                 <td>
-                                    <%= Data[index].role %>
+                                    <span id="role_<%=Data[index].empId %>"
+                                        onclick="makeEditable('role_<%=Data[index].empId %>')">
+                                        <%= Data[index].role %>
+                                    </span>
+                                    <select name="role" class="form-select" id="input_role_<%=Data[index].empId %>"
+                                        style="display:none; width: 100%">
+                                        <option value="Employee" <% if (Data[index].role=="Employee" ) { %>
+                                            selected
+                                            <% } %>>Employee
+                                        </option>
+                                        <option value="Trainer" <% if (Data[index].role=="Trainer" ) { %>
+                                            selected
+                                            <% } %> >Trainer
+                                        </option>
+
+                                    </select>
                                 </td>
                                 <td>
-                                    <%= Data[index].lastSeen %>
+                                    <%= Data[index].newLastSeen %>
                                 </td>
                                 <td>
                                     <%= Data[index].Status %>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-success btn-sm ms-2 me-2"
-                                        onclick="updateStatusAPI('<%= Data[index].empId %>','Active')"><i
-                                            class="bi bi-check-circle-fill"></i></button>
-                                    <button type="button" class="btn btn-danger btn-sm ms-2"
-                                        onclick="updateStatusAPI('<%= Data[index].empId %>','Inactive')"><i
-                                            class="bi bi-x-circle"></i></button>
+                                    <% if (Data[index].Status=="Inactive" ) { %>
+                                        <button type="button" class="btn btn-success btn-sm ms-2 me-2"
+                                            onclick="updateStatusAPI('<%= Data[index].empId %>','Active')"><i
+                                                class="bi bi-check-circle-fill"></i></button>
+                                        <% }else{ %>
+                                            <button type="button" class="btn btn-danger btn-sm ms-2"
+                                                onclick="updateStatusAPI('<%= Data[index].empId %>','Inactive')"><i
+                                                    class="bi bi-x-circle"></i></button>
+                                            <% } %>
                                 </td>
+                                <td><button type="button" class="btn btn-primary btn-sm"
+                                        id="updateBtn_<%= Data[index].empId %>"
+                                        onclick="updateUser('<%= Data[index].empId %>')"
+                                        style="display:none;">Update</button></td>
 
                             </tr>
                             <% } %>
@@ -104,7 +152,6 @@
 
                                             <a href="/login" class="btn btn-outline-primary rounded-pill"><i
                                                     class="bi bi-arrow-left-circle-fill"></i> Go Back To Home</a>
-
                                         </td>
                                     </tr>
                                     <% } %>
@@ -112,9 +159,77 @@
             </table>
         </div>
     </main>
+    <!-- Modal -->
+    <div class="modal fade" id="AddUserModal" tabindex="-1" aria-labelledby="AddUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="AddUserModalLabel">Add User</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/Admin/addUser" method="post">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="empIDInput" placeholder="empIDInput"
+                                name="empId" required>
+                            <label for="empIDInput">Employee ID</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="nameinput" placeholder="nameinput"
+                                name="employeeName" required>
+                            <label for="nameinput">Full Name</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="emailInput" placeholder="emailInput"
+                                name="email" required>
+                            <label for="emailInput">Email</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select id="roleInput" class="form-select" name="role" required>
+                                <option value="">Select Role</option>
+                                <option value="Trainer">Trainer</option>
+                                <option value="Employee">Employee</option>
+                            </select>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-secondary">Reset</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <%- include('../partials/dependencies-js') %>
         <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const message = urlParams.get('Message');
+            if (message) {
+                alert(message);
+                window.location.replace('/Admin/viewUsers')
+            }
 
+            function updateUser(id) {
+                let { employeeName, email, role } = "";
+                employeeName = document.getElementById(`input_name_${id}`).value;
+                email = document.getElementById(`input_email_${id}`).value;
+                role = document.getElementById(`input_role_${id}`).value;
+                axios.post('/api/updateUserInfo',{
+                    params:{
+                        id:id,
+                        employeeName:employeeName,
+                        email:email,
+                        role:role
+                    }
+                }).then(res=>{
+                    if(res.status==200){
+                        updateContentArea(res.data)
+                    }
+                }).catch(e=>{
+                    console.log(e);
+                    alert("Unable to Update User Info...\nPlease Contact Admin")
+                })
+            }
             function updateStatusAPI(id, newStatus) {
                 axios.post('/api/updateUserStatus', {
                     params: {
@@ -140,28 +255,91 @@
                         table.innerHTML += `<tr>
                                     <td>${i + 1}</td>
                                     <td>${data[i]["empId"]}</td>
-                                    <td>${data[i]["employeeName"]}</td>
-                                    <td>${data[i]["email"]}</td>
-                                    <td>${data[i]["role"]}</td>
-                                    <td>${data[i]["lastSeen"]}</td>
+                                    <td><span id="name_${data[i]["empId"]}"
+                                        onclick="makeEditable('name_${data[i]["empId"]}')">
+                                        ${data[i]["employeeName"]}
+                                    </span>
+                                    <input type="text" class="form-control" id="input_name_${data[i]["empId"]}"
+                                        value="${data[i]["employeeName"]}" style="display:none;width: 100%;"></td>
+                                    
+                                    
+                                    <td><span id="email_${data[i]["empId"]}"
+                                        onclick="makeEditable('email_${data[i]["empId"]}')">
+                                        ${data[i]["email"]}
+                                    </span>
+                                    <input type="text" class="form-control" id="input_email_${data[i]["empId"]}"
+                                        value="${data[i]["email"]}" style="display:none;width: 100%;"></td>
+                                    
+                                    <td> <span id="role_${data[i]["empId"]}"
+                                        onclick="makeEditable('role_${data[i]["empId"]}')">
+                                        ${data[i]["role"]}
+                                    </span>
+                                    <select name="role" class="form-select" id="input_role_${data[i]["empId"]}"
+                                        style="display:none; width: 100%">
+                                        <option value="Employee" ${data[i]['role']=='Employee'?"selected":""}>Employee
+                                        </option>
+                                        <option value="Trainer" ${data[i]['role']=='Trainer'?"selected":""} >Trainer
+                                        </option>
+
+                                    </select></td>
+                                    <td>${data[i]["newLastSeen"]}</td>
                                     <td>${data[i]["Status"]}</td>
                                     <td>
+                                        ${data[i]["Status"] == "Inactive" ? `
                                         <button type="button" class="btn btn-success btn-sm ms-2 me-2"
                                             onclick="updateStatusAPI('${data[i]['empId']}','Active')"><i
-                                                class="bi bi-check-circle-fill"></i></button>
+                                                class="bi bi-check-circle-fill"></i></button>`: `
                                         <button type="button" class="btn btn-danger btn-sm ms-2"
                                             onclick="updateStatusAPI('${data[i]['empId']}','Inactive')"><i
-                                                class="bi bi-x-circle"></i></button>
+                                                class="bi bi-x-circle"></i></button>`}
                                     </td>
-                                    </td>`;
+                                    <td><button type="button" class="btn btn-primary btn-sm"
+                                        id="updateBtn_${data[i]["empId"]}"
+                                        onclick="updateUser('${data[i]["empId"]}')"
+                                        style="display:none;">Update</button></td>`;
                     }
                 }
 
-            }    
+            }
+            $("#SearchBox").on("keydown", function (e) {
+                if (e.keyCode === 13) {  //checks whether the pressed key is "Enter"
+                    document.getElementById("FilterBtn").click()
+                }
+            });
+            document.getElementById("FilterBtn").addEventListener('click', async (e) => {
+                const Key = document.getElementById("SearchBox").value.replaceAll(" ", "");
+                var regex = /^[0-9a-zA-Z\/-]+$/
+                if (regex.test(Key)) {
+                    axios.get('/api/GetUser', {
+                        params: {
+                            key: Key
+                        }
+                    }).then(res => {
+                        if (res.status == 200) {
+                            updateContentArea(res.data);
+                        }
+                    })
+                        .catch(e => {
+                            console.log(e);
+                            alert("Unable to Find the User...\nPlease Check the Details or Contact Admin");
+                        })
+                } else {
+                    document.getElementById("SearchBox").value = null;
+                    alert("Special Characters are Not Allowed...!");
+                }
+            })
+            function makeEditable(fieldId) {
+                const span = document.getElementById(fieldId);
+                const inputField = document.getElementById('input_' + fieldId);
+
+                span.style.display = 'none';
+                inputField.style.display = 'inline-block';
+                inputField.value = span.innerText.trim();
+
+                const updateBtn = document.getElementById('updateBtn_' + fieldId.split('_')[1]);
+                updateBtn.style.display = 'block';
+            }
         </script>
-        <footer>
-            <%- include('../partials/footer') %>
-        </footer>
 </body>
 
 </html>

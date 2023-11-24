@@ -13,7 +13,7 @@
     min-height: 50dvh;
     width: 100%;
     top: 100px;
-    position: relative;
+    position: absolute;
     background-color: white;
 }
 
@@ -283,24 +283,17 @@ nav .icon-burger .line {
 }
 
 .result-card {
+    position: relative;
+    top: 100px;
     word-wrap: break-word;
     border-radius: 20px;
-    width: 500px;
+    /* width: 500px; */
     place-items: center;
     background-color: var(--color-background);
     box-sizing: border-box;
     box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-    padding: 20px;
-    transform: translateY(-5%);
     animation: floater 1s;
     transition: ease 0.5s;
-}
-
-.result-card>h1 {
-    /* font-family: 'Great Vibes', cursive; */
-    letter-spacing: 3px;
-    word-spacing: 5px;
-    margin: 10px;
 }
 
 .result-card-pass {
@@ -429,4 +422,17 @@ nav .icon-burger .line {
     margin-right: 41px;
     display: inline;
     color: #222;
+}
+
+#scrollTopButton,
+#scrollBottomButton {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99;
+}
+
+#scrollBottomButton {
+  bottom: 60px;
 }

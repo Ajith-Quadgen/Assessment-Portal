@@ -38,7 +38,6 @@
       border-radius: 30px;
       box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
     }
-    
   </style>
   <div class="main_container justify-content-md-center" id="sheet" style="top: 0px;">
     <div class="child mb-1" id="main">
@@ -86,13 +85,14 @@
       </div>
 
       <div class="text-center" id="warningWindow">
-       
+
         <div style="border: 2px solid red; padding: 10px;" class="m-2">
           <p style="color: red; font-weight: bold;">
             Warning: Malpractice Alert!
           </p>
-          <p>After clicking the            <b>START</b> button, 
-            Moving your mouse cursor out of the red color boundary during the assessment is considered a violation of exam rules. This action may be interpreted as an attempt
+          <p>After clicking the <b>START</b> button,
+            Moving your mouse cursor out of the red color boundary during the assessment is considered a violation of
+            exam rules. This action may be interpreted as an attempt
             to engage in malpractice.
           </p>
           <p>
@@ -246,8 +246,6 @@
       e.preventDefault();
       SubmitAssessment();
     });
-
-
     document.addEventListener('keydown', function (event) {
       if (event.code === 'Escape' || (event.code === 'Escape' && event.code === 'Meta')) {
         event.preventDefault();
@@ -277,11 +275,11 @@
     }
 
 
-    let NoOfAttempts = 4;
+    let NoOfAttempts = 3;
     var timeLeft = 1;
     var timerId = "";
     var v = '<%= jsonData.Duration %>';
-    v = 1.1;
+    v = 5.1;
     setInterval(() => {
       var noattempts = document.getElementsByClassName("NoAttempts");
       for (element of noattempts) {
@@ -294,6 +292,12 @@
       document.getElementById("progressBar").style.display = "none";
 
       fullscreenButton.addEventListener("click", function () {
+        axios.post("api/AssessmentStarted", {
+          params: {
+            Ass_Id: document.getElementById("AssessmentKey").value,
+            Duration: v
+          }
+        });
         document.getElementById("fullscreenButton").style.display = "none";
         document.getElementById("warningWindow").style.display = "none";
         document.getElementById("main").classList.add("border", "border-danger", "border-5")
@@ -337,10 +341,10 @@
             timeLeft = 30;
             clearTimeout(timerId);
             timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
-            document.getElementById("abortbtn").setAttribute("id","")
+            document.getElementById("abortbtn").setAttribute("id", "")
             $("#WarningModal").modal('show');
           }
-          
+
         });
 
         //Function to Monitor the Switching the Tab and Window.
@@ -364,7 +368,7 @@
             document.getElementById("warning_modal_footer").style.display = "none"
             $("#WarningModal").modal('show');
           }
-          
+
         });
 
         //Function to Monitor the Minimizing and Maximizing the Screen. 
@@ -391,7 +395,7 @@
             clearTimeout(timerId);
             ValidScreen = true;
           }
-          
+
         });
 
 
@@ -404,7 +408,7 @@
             $("#FullstaticBackdrop").modal('hide');
             SubmitAssessment();
           } else {
-            elem.innerHTML = timeLeft+"";
+            elem.innerHTML = timeLeft + "";
             timeLeft--;
           }
         }
@@ -426,7 +430,10 @@
         $("#WarningModal").modal('hide');
       });
     });
-
+    $(window).bind('beforeunload', function(){
+      console.log("hi")
+  return 'Are you sure you want to leave Ajith?';
+});
   </script>
 
 </html>

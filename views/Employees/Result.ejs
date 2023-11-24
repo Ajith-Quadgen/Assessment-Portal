@@ -12,66 +12,166 @@
 
 <% if(Role=="Admin" ){ %>
   <%- include('../partials/admin-header',{title:title}) %>
-      <% }else if(Role=="Employee" ){ %>
-          <%- include('../partials/employee-header',{title:title}) %>
-              <%} if(Role=="Trainer" ){ %>
-                  <%- include('../partials/trainer-header',{title:title}) %>
-                      <%}%>
+    <% }else if(Role=="Employee" ){ %>
+      <%- include('../partials/employee-header',{title:title}) %>
+        <%} if(Role=="Trainer" ){ %>
+          <%- include('../partials/trainer-header',{title:title}) %>
+            <%}%>
 
-  <body>
-    <section class="result-section main_container " style="display: flex;
-    align-items: center;
-    justify-content: center;
-    ">
-<% if (Result.Result=="Cleared") { %>
+              <body>
+                <% if (Result.Result=="Cleared" ) { %>
+                <canvas id="confetti"></canvas>
+                <% } %>
+                <section class="result-section d-flex flex-row align-items-center">
+                  <% if (Result.Result=="Cleared" ) { %>                    
+                    <div class="text-center result-card result-card-pass d-flex flex-column ">
+                      <div class="emoji-smile">
+                        <div class="face">
+                          <div class="eyebrow-left"></div>
+                          <div class="eyebrow-right"></div>
+                          <div class="eye-left"></div>
+                          <div class="eye-right"></div>
+                          <div class="mouth-happy"></div>
+                        </div>
+                      </div>
+                      <h1 class="animate-charcter">
+                        <b>Congratulations</b><br> You have Passed with Flying Colors.
+                      </h1>
+                      <h5>Total Score: <b>
+                          <%= Result.TotalScore%>
+                        </b> Percentage: <b>
+                          <%= Result.SecuredPercentage%>%
+                        </b>
+                      </h5>
+                      <div class="slide-right m-2 rounded-3 shadow-lg"
+                        style='width: 750px; height: 420px; background-image: url("../../public/Generated/Temp/<%= Certificate_Name_Image %>"); background-position: center; background-repeat: no-repeat; background-size: cover;'>
+                        <a href="../../public/Generated/Certificates/<%= Certificate_Name %>" download="<%=Certificate_Name%>" class="btn btn-outline-dark  border border-0" style="    position: absolute;    right: 5px;    top: 5px;"  data-bs-toggle="tooltip" data-bs-title="Download your certificate"><h5 class="m-0"><i class="bi bi-arrow-down-circle-fill"></i></h5></a>
+                      </div>
+                    </div> 
+                    <% } %>
+                      <% if (Result.Result=="Not Cleared" ) { %>
+                        <div class="text-center result-card result-card-fail d-flex flex-column ">
+                          <div class="emoji-sad">
+                            <div class="face">
+                              <div class="eyebrow-left"></div>
+                              <div class="eyebrow-right"></div>
+                              <div class="eye-left"></div>
+                              <div class="eye-right"></div>
+                              <div class="mouth-sad"></div>
+                            </div>
+                          </div>
+                          <h1 class="animate-charcter">
+                            <b>Unfortunately</b>,<br> You have not met the passing criteria for the exam.
+                          </h1>
+                          <h5>Total Score:<%= Result.TotalScore%>
+                          </h5>
+                          <h5>Percentage:<%= Result.SecuredPercentage%>
+                          </h5>
+                          <a href="/" class="btn btn-outline-dark rounded-pill"><i
+                              class="bi bi-arrow-left-circle-fill"></i> Go Back To Home</a>
+                        </div>
 
-  <div class="text-center result-card result-card-pass d-flex flex-column ">
-    <div class="emoji-smile">
-      <div class="face">
-        <div class="eyebrow-left"></div>
-        <div class="eyebrow-right"></div>
-        <div class="eye-left"></div>
-        <div class="eye-right"></div>
-        <div class="mouth-happy"></div>
-      </div>
-    </div>
-    <h1 class="animate-charcter">
-      <b>Congratulations</b>,<br> You have Passed with Flying Colors.
-    </h1>
-    <h5>Total Score:<%= Result.TotalScore%>
-    </h5>
-    <h5>Percentage:<%= Result.SecuredPercentage%>
-    </h5>
-    <h5>
-      Go to Result Page to Collect Your Certificate
-    </h5>
-    <a href="/login" class="btn btn-outline-dark rounded-pill"><i class="bi bi-arrow-left-circle-fill"></i> Go Back To Home</a>
-  </div>
-  <% } %>
-<% if (Result.Result=="Not Cleared") { %>
-  <div class="text-center result-card result-card-fail d-flex flex-column ">
-    <div class="emoji-sad">
-      <div class="face">
-        <div class="eyebrow-left"></div>
-        <div class="eyebrow-right"></div>
-        <div class="eye-left"></div>
-        <div class="eye-right"></div>
-        <div class="mouth-sad"></div>
-      </div>
-    </div>
-    <h1 class="animate-charcter">
-     <b>Unfortunately</b>,<br> You have not met the passing criteria for the exam.
-    </h1>
-    <h5>Total Score:<%= Result.TotalScore%>
-    </h5>
-    <h5>Percentage:<%= Result.SecuredPercentage%>
-    </h5>
-    <a href="/login" class="btn btn-outline-dark rounded-pill"><i class="bi bi-arrow-left-circle-fill"></i> Go Back To Home</a>
-  </div>
+                        <% } %>
+                </section>
+              </body>
+              <%- include('../partials/dependencies-js') %>
+<script>
+  let W = window.innerWidth;
+let H = document.getElementById('confetti').clientHeight;
+const canvas = document.getElementById('confetti');
+const context = canvas.getContext("2d");
+const maxConfettis = 25;
+const particles = [];
 
-  <% } %>
-    </section>
-  </body>
-  <%- include('../partials/dependencies-js') %>
+const possibleColors = [
+  "#ff7336",
+  "#f9e038",
+  "#02cca4",
+  "#383082",
+  "#fed3f5",
+  "#b1245a",
+  "#f2733f"
+];
 
+function randomFromTo(from, to) {
+  return Math.floor(Math.random() * (to - from + 1) + from);
+}
+
+function confettiParticle() {
+  this.x = Math.random() * W; // x
+  this.y = Math.random() * H - H; // y
+  this.r = randomFromTo(11, 33); // radius
+  this.d = Math.random() * maxConfettis + 11;
+  this.color =
+    possibleColors[Math.floor(Math.random() * possibleColors.length)];
+  this.tilt = Math.floor(Math.random() * 33) - 11;
+  this.tiltAngleIncremental = Math.random() * 0.07 + 0.05;
+  this.tiltAngle = 0;
+
+  this.draw = function() {
+    context.beginPath();
+    context.lineWidth = this.r / 2;
+    context.strokeStyle = this.color;
+    context.moveTo(this.x + this.tilt + this.r / 3, this.y);
+    context.lineTo(this.x + this.tilt, this.y + this.tilt + this.r / 5);
+    return context.stroke();
+  };
+}
+
+function Draw() {
+  const results = [];
+
+  // Magical recursive functional love
+  requestAnimationFrame(Draw);
+
+  context.clearRect(0, 0, W, window.innerHeight);
+
+  for (var i = 0; i < maxConfettis; i++) {
+    results.push(particles[i].draw());
+  }
+
+  let particle = {};
+  let remainingFlakes = 0;
+  for (var i = 0; i < maxConfettis; i++) {
+    particle = particles[i];
+
+    particle.tiltAngle += particle.tiltAngleIncremental;
+    particle.y += (Math.cos(particle.d) + 3 + particle.r / 2) / 2;
+    particle.tilt = Math.sin(particle.tiltAngle - i / 3) * 15;
+
+    if (particle.y <= H) remainingFlakes++;
+
+    // If a confetti has fluttered out of view,
+    // bring it back to above the viewport and let if re-fall.
+    if (particle.x > W + 30 || particle.x < -30 || particle.y > H) {
+      particle.x = Math.random() * W;
+      particle.y = -30;
+      particle.tilt = Math.floor(Math.random() * 10) - 20;
+    }
+  }
+
+  return results;
+}
+
+window.addEventListener(
+  "resize",
+  function() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  },
+  false
+);
+
+// Push new confetti objects to `particles[]`
+for (var i = 0; i < maxConfettis; i++) {
+  particles.push(new confettiParticle());
+}
+
+// Initialize
+canvas.width = W;
+canvas.height = H;
+Draw();
+</script>
 </html>

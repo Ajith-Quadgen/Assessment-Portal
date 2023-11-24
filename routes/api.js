@@ -10,6 +10,7 @@ const DateTime = require('node-datetime/src/datetime');
 const excel = require('exceljs');
 const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport');
+const { error, log } = require('console');
 
 const transporter = nodemailer.createTransport(
     smtpTransport({
@@ -40,7 +41,9 @@ const myFileFilter = (req, file, error) => {
         cb(new Error("Not a PDF File!!"), false);
     }
 };
-
+function getTimeStamp() {
+    return (new Date().toISOString().slice(0, 10) + " " + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata' }));
+}
 const upload = multer({ storage: myStorage, limits: { fileSize: 500000 } }).single("myQCImage");
 
 api_router.post('/GeneratePasswordResetOPT', async (req, res) => {
@@ -330,7 +333,7 @@ api_router.post('/updateUserStatus', (req, res) => {
                 res.status(400).send(err);
             } else {
                 if (result.changedRows > 0) {
-                    db.query("SELECT * FROM userlogin", (error, Data) => {
+                    db.query("Select *,date_format(lastSeen,'%d-%b-%y/%r') as newLastSeen from userlogin where role!='Admin'  order by employeeName", (error, Data) => {
                         if (error) {
                             console.log(error)
                             res.status(400).send(error);
@@ -417,6 +420,58 @@ api_router.get('/DownloadAssessmentReport', (req, res) => {
 
 })
 
+api_router.get('/GetUser', (req, res) => {
+    if (req.session.UserID) {
+        db.query('Select *,date_format(lastSeen,"%d-%b-%y/%r") as newLastSeen from userlogin where role!="Admin" and (empId like "%' + req.query.key + '%" or employeeName like "%' + req.query.key + '%")', (error, result) => {
+            if (error) {
+                console.log(error)
+                res.status(400).send("Internal Server Error")
+            } else if (result.length > 0) {
+                res.status(200).send(result)
+            } else {
+                res.status(400).send("Data Not Found")
+            }
+        })
+    } else {
+        res.status(400).send("Access Denied")
+    }
+})
+api_router.post('/updateUserInfo', (req, res) => {
+    if (req.session.UserID && req.session.UserRole == "Admin") {
+        db.query("update userlogin set employeeName=?,email=?,role=? WHERE empId=?", [req.body.params.employeeName, req.body.params.email, req.body.params.role, req.body.params.id], (err, result) => {
+            if (err) {
+                console.log(err)
+                res.status(400).send(err);
+            } else {
+                if (result.changedRows > 0) {
+                    db.query("Select *,date_format(lastSeen,'%d-%b-%y/%r') as newLastSeen from userlogin where role!='Admin'  order by employeeName", (error, Data) => {
+                        if (error) {
+                            console.log(error)
+                            res.status(400).send(error);
+                        } else {
+                            res.status(200).send(Data);
+                        }
+                    });
+                }
+            }
+        })
+    } else {
+        res.status(400).send("Access Denied")
+    }
+})
+api_router.post('/AssessmentStarted', (req, res) => {
+    if (req.session.UserID) {
+        var x = new Date(getTimeStamp()).getTime()
+        var y = new Date(x+ parseInt(req.body.params.Duration) * 60 * 1000).toISOString().slice(0, 10) + " " + new Date(x + parseInt(req.body.params.Duration) * 60 * 1000).toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata' })
+        db.query("insert into assessment_session (`User_ID`,`Assessment_ID`,`Start_Time`,`End_Time`) values (?,?,?,?)", [req.session.UserID, req.body.params.Ass_Id,getTimeStamp(),y], (error, result) => {
+            if (error) {
+                console.log(error)
+            } else {
+                log("ok")
+            }
+        })
+    }
+})
 api_router.get("*", (req, res) => {
     res.status(404).send("Invalid API Request")
 });
