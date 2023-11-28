@@ -135,15 +135,13 @@
                         var link = document.createElement('a');
                         link.href = window.URL.createObjectURL(blob);
                         link.download = `${Date.now().toLocaleString()}`+"XYZ.xlsx";
-
                         document.body.appendChild(link);
-
                         link.click(); // create an <a> element and simulate the click operation.
                     }
                 })
                     .catch(e => {
                         console.log(e);
-                        alert("An Error Occurred while generating PDF");
+                        alert("An Error Occurred while generating Report");
                     })
             });
 

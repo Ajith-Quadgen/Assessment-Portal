@@ -253,7 +253,7 @@ app.post('/oldVerifyAssessmentKey', (req, res) => {
 app.post('/ExamHall', (req, res) => {
   if (req.session.UserID) {
     let jsonData, queryData;
-    db.query("select * from assessments where AssesmentKey=? and Status='Published' and CreatedBy!=?", [req.body.AssesmentKey,req.session.UserID], function (error, result) {
+    db.query("select * from assessments where AssesmentKey=? and Status='Published' and CreatedBy!=?", [req.body.AssesmentKey, req.session.UserID], function (error, result) {
       if (result.length > 0) {
         jsonData = JSON.parse(result[0].Questionnaire);
         res.render('Employees/takeAssessment', { jsonData: jsonData, "result": result[0], message: null, user: req.session.UserRole, title: "Assessment Page" });
@@ -274,262 +274,269 @@ app.post('/ExamHall', (req, res) => {
 
 app.post('/submit-assessment', async (req, res) => {
   if (req.session.UserID) {
-    const answerScript = JSON.parse(req.body.JsonFormData);
-    db.query("Select * from assessments,userlogin where userlogin.empId=?  and AssessmentID=? and AssesmentKey=?", [req.session.UserID, req.body.AssessmentID, req.body.AssessmentKey], function (error, result) {
-      db.query("select * from userlogin where empid=?", [result[0].CreatedBy], async (err, result2) => {
-        if (err) throw err;
-        if (error) throw error;
 
-        const Questionnaire = JSON.parse(result[0].Questionnaire);
-        var Result = {};
-        let totalScore = 0;
-        for (const sectionName in Questionnaire) {
-          if (sectionName.startsWith('Section')) {
-            const section = Questionnaire[sectionName];
-            const answers = answerScript[sectionName];
-            let sectionScore = 0;
-            for (const questionName in section) {
-              if (questionName !== 'MaxScore' && questionName != "SectionName") {
-                const question = section[questionName];
-                const answer = answers[questionName];
-                if (answer && answer.correctOption === question.answer) {
-                  sectionScore += parseInt(question.point);
-                }
-              }
-            }
-            Result[sectionName] = sectionScore;
-            totalScore += sectionScore;
-          }
-        }
-        let resultLabel;
-        var cutOff = parseInt(Questionnaire['Cutoff']);
-        var maxMarks = parseInt(Questionnaire['TotalScore']);
-        var currentPercentage = ((totalScore / maxMarks) * 100).toFixed(0);
-        Result.SecuredPercentage = currentPercentage;
-        var message = "";
-        if (currentPercentage >= cutOff) {
-          resultLabel = "Cleared";
-          message = "Congratulations You Passed with FLying Colours";
-        } else {
-          resultLabel = "Not Cleared"
-          message = "Unfortunately, you have not met the passing criteria for the exam.";
-        }
-        Result.TotalScore = totalScore;
-        Result.Message = message;
-        Result.Result = resultLabel;
-        const filename = `${req.session.UserID}_${Date.now()}_${result[0]['AssessmentName']}_Report.pdf`
-        const path = `./public/Generated/AssessmentReport/${filename}`;
-        const question = Questionnaire;
-        const result1 = Result;
-        const maxScore = maxMarks;
-        //header
-        let theOutput = new PDFGenerator({ bufferPages: true, font: 'Courier' })
-        theOutput.pipe(fs.createWriteStream(path));
-        theOutput.fontSize(16).fillColor('black').font('Helvetica-Bold').text('Assessment Response', 50, 30, { align: 'center', underline: true, lineGap: 5 })
-        theOutput.image('./static/images/Quadgen_Logo.png', 20, 10, { width: 45, height: 50 }).fillColor('#000').fontSize(20)
-        //Content
-        theOutput.moveDown()
-        theOutput.fontSize(14).font('Helvetica').fillColor('black').text(`Title:${question.Title}`)
-        theOutput.moveDown()
-        theOutput.fontSize(12).fillColor('black').text(`Employee ID: ${result[0].empId}`)
-        theOutput.fontSize(12).fillColor('black').text(`Name: ${result[0].employeeName}`)
-        theOutput.fontSize(12).fillColor('black').text(`Trainer: ${result2[0].employeeName}`)
-        theOutput.fontSize(12).fillColor('black').text(`Total Score: ${question.TotalScore}`)
-        theOutput.fillColor('black').text(`Date: ${dt.format('d-m-Y H:M:S')}`)
-        theOutput.moveDown()
-        theOutput.fontSize(11).fillColor('black').text("Description:", { underline: true }).text(`${question.Description}`, { align: 'justify' })
-        theOutput.moveDown(2)
-        for (const sectionName in question) {
-          if (sectionName.startsWith('Section')) {
-            const section = question[sectionName];
-            const answers = answerScript[sectionName];
-            let sectionScore = 0;
-            theOutput.fontSize(14).fillColor('black').text(`${sectionName} : ${section.SectionName}`).fontSize(12).text(`Max Score: ${section.MaxScore}`, { align: 'right' })
-            theOutput.moveDown()
-            for (const questionName in section) {
-              if (questionName !== 'MaxScore' && questionName !== 'SectionName') {
-                const question = section[questionName];
-                const answer = answers[questionName];
-                theOutput.fontSize(14).fillColor('black').font('Helvetica-Bold').text(`${questionName}: ${question.question}`)
-                theOutput.fillColor('black').font('Helvetica').text(`Point:${question.point}`, { align: 'right' })
+    db.query('update assessment_session set End_Time=? , Status="Completed" where User_ID=? and Assessment_ID=?', [getTimeStamp(), req.session.UserID, req.body.AssessmentKey], (error, responses) => {
+      if (error) {
+        console.log(error)
+      } else {
+        const answerScript = JSON.parse(req.body.JsonFormData);
+        db.query("Select * from assessments,userlogin where userlogin.empId=?  and AssessmentID=? and AssesmentKey=?", [req.session.UserID, req.body.AssessmentID, req.body.AssessmentKey], function (error, result) {
+          db.query("select * from userlogin where empid=?", [result[0].CreatedBy], async (err, result2) => {
+            if (err) throw err;
+            if (error) throw error;
 
-                if (question['referenceImage']) {
-                  theOutput.moveDown()
-                  theOutput.image(`./public/uploads/Trainer/${question['referenceImage']}`, { fit: [400, 150], align: 'left' })
-                }
-                for (const key in question.options) {
-                  if (answer && question.answer == question['options'][key] && question.answer == answer.correctOption) {
-                    theOutput.fillColor('green').text(`${key + ': ' + question['options'][key]}`)
-                  } else if (answer && answer.correctOption == question['options'][key]) {
-                    theOutput.fillColor('red').text(`${key + ': ' + question['options'][key]}`)
-                  } else {
-                    theOutput.fillColor('black').text(`${key + ': ' + question['options'][key]}`)
+            const Questionnaire = JSON.parse(result[0].Questionnaire);
+            var Result = {};
+            let totalScore = 0;
+            for (const sectionName in Questionnaire) {
+              if (sectionName.startsWith('Section')) {
+                const section = Questionnaire[sectionName];
+                const answers = answerScript[sectionName];
+                let sectionScore = 0;
+                for (const questionName in section) {
+                  if (questionName !== 'MaxScore' && questionName != "SectionName") {
+                    const question = section[questionName];
+                    const answer = answers[questionName];
+                    if (answer && answer.correctOption === question.answer) {
+                      sectionScore += parseInt(question.point);
+                    }
                   }
                 }
-                theOutput.fontSize(12).fillColor('blue').text(`Answer: ${question.answer}`);
-                theOutput.moveDown()
+                Result[sectionName] = sectionScore;
+                totalScore += sectionScore;
               }
             }
-          }
-        }
-        theOutput.fillColor("black").fontSize(18).text("Result:").moveDown()
-        for (const records in result1) {
-          if (records.startsWith('Section')) {
-            theOutput.fontSize(14).text(`${records}: ${result1[records]}`)
-          }
-        }
-        theOutput.fontSize(14).text(`Total Score: ${result1.TotalScore}/${maxScore}`)
-        theOutput.fontSize(14).text(`Percentage: ${result1.SecuredPercentage}%.`)
-        theOutput.text(`Remarks: ${req.body.AssessmentRemarks}`)
-        if (result1.Result == "Cleared") {
-          theOutput.fillColor('green').fontSize(14).text(`Result: CLEARED`)
-        } else if (result1.Result == "Not Cleared") {
-          theOutput.fillColor('red').fontSize(14).text(`Result: NOT CLEARED`)
-        }
-        //footer
-        const pages = theOutput.bufferedPageRange(); // => { start: 0, count: 2 }
-        for (let i = 0; i < pages.count; i++) {
-          theOutput.switchToPage(i);
-          //Footer: Add page number
-          let oldBottomMargin = theOutput.page.margins.bottom;
-          theOutput.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
-          theOutput.fillColor('black').fontSize(10).text(`Page: ${i + 1} of ${pages.count}`, 0.5 * (theOutput.page.width - 100), theOutput.page.height - 50, {
-            width: 100,
-            align: 'center',
-            lineBreak: false,
-          });
-          theOutput.page.margins.bottom = oldBottomMargin;
-        }
-        theOutput.end()
-        let { certificatePath, Certificate_Name, tempCertificatePath, tempCertificate_Name } = "";
-        if (resultLabel == "Cleared") {
-          try {
-            const x = `${req.session.UserID}_${Date.now()}`
-            Certificate_Name = `${x}_${result[0]['AssessmentName']}_Certificate.pdf`
-            tempCertificate_Name = `${x}_${result[0]['AssessmentName']}_Certificate.png`
-
-            certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
-            tempCertificatePath = `./public/Generated/Temp/${tempCertificate_Name}`;
-
-            // Load background image
-            loadImage('Template-11.png').then((image) => {
-              // Creating PDf Certificate
-              let canvas = createCanvas(1280, 720, 'pdf'); // Adjust the canvas size as needed
-              let ctx = canvas.getContext('2d');
-              ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-              ctx.font = '30px serif'; // Use your own font and size
-              ctx.fillStyle = 'black'; // Text color
-              // Calculate X-coordinate for horizontal alignment
-              let Course = "Awarded to";
-              let CourseWidth = ctx.measureText(Course).width;
-              let Course_xPosition = (canvas.width - CourseWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Course, Course_xPosition, 270);
-              ctx.font = '60px serif';
-              ctx.fillStyle = '#6fbee1';
-              let Name = `${result[0].employeeName}`;
-              let NameWidth = ctx.measureText(Name).width;
-              let Name_xPosition = (canvas.width - NameWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Name, Name_xPosition, 350);
-              ctx.font = '30px serif';
-              ctx.fillStyle = 'black';
-              Course = `On`;
-              CourseWidth = ctx.measureText(Course).width;
-              Course_xPosition = (canvas.width - CourseWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Course, Course_xPosition, 420);
-              ctx.font = '44px serif';
-              Course = `${result[0]['Certificate_Name']}`;
-              CourseWidth = ctx.measureText(Course).width;
-              Course_xPosition = (canvas.width - CourseWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Course, Course_xPosition, 490);
-              ctx.font = '30px sans';
-              let Current_Date = new Date().toLocaleDateString('en-US').replaceAll('/', '-');
-              Current_Date = `Dated: ${Current_Date}`
-              let DateWidth = ctx.measureText(Current_Date).width;
-              let Date_xPosition = (canvas.width - DateWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Current_Date, Date_xPosition, 560);
-              const stream = canvas.createPDFStream();
-              const outputFile = fs.createWriteStream(certificatePath);
-              stream.pipe(outputFile);
-
-              // Creating Image Certificate
-              canvas = createCanvas(1280, 720); // Adjust the canvas size as needed
-              ctx = canvas.getContext('2d');
-              ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-              ctx.font = '30px serif'; // Use your own font and size
-              ctx.fillStyle = 'black'; // Text color
-              // Calculate X-coordinate for horizontal alignment
-              Course = "Awarded to";
-              CourseWidth = ctx.measureText(Course).width;
-              Course_xPosition = (canvas.width - CourseWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Course, Course_xPosition, 270);
-              ctx.font = '60px serif';
-              ctx.fillStyle = '#6fbee1';
-              Name = `${result[0].employeeName}`;
-              NameWidth = ctx.measureText(Name).width;
-              Name_xPosition = (canvas.width - NameWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Name, Name_xPosition, 350);
-              ctx.font = '30px serif';
-              ctx.fillStyle = 'black';
-              Course = `On`;
-              CourseWidth = ctx.measureText(Course).width;
-              Course_xPosition = (canvas.width - CourseWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Course, Course_xPosition, 420);
-              ctx.font = '44px serif';
-              Course = `${result[0]['Certificate_Name']}`;
-              CourseWidth = ctx.measureText(Course).width;
-              Course_xPosition = (canvas.width - CourseWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Course, Course_xPosition, 490);
-              ctx.font = '30px sans';
-              Current_Date = new Date().toLocaleDateString('en-US').replaceAll('/', '-');
-              Current_Date = `Dated: ${Current_Date}`
-              DateWidth = ctx.measureText(Current_Date).width;
-              Date_xPosition = (canvas.width - DateWidth) / 2;
-              // Draw the text on the certificate
-              ctx.fillText(Current_Date, Date_xPosition, 560);
-              const imageStream = canvas.createPNGStream();
-              const TempOutputFile = fs.createWriteStream(tempCertificatePath);
-              imageStream.pipe(TempOutputFile);
-              TempOutputFile.on('finish', () => console.log('The JPEG file was created.'));
-            });
-          } catch (err) {
-            console.error('Certificate generation and saving failed:', err);
-          }
-        }
-
-        const inputData = {
-          AssessmentID: req.body.AssessmentID,
-          answerscript: JSON.stringify(answerScript),
-          obtainedmarks: JSON.stringify(Result),
-          employeeid: req.session.UserID,
-          date: CurrentDate,
-          remarks: req.body.AssessmentRemarks,
-          Result: resultLabel,
-          report: filename,
-          certificate: Certificate_Name
-        };
-        db.query('INSERT INTO responces  set?', [inputData], function (error1, result1) {
-          if (error1) {
-            console.log(error1)
-          }
-          db.query("Update repeatrequest set status=IF(status='Approved','Appeared',status) where (userID=? and assessmentkey=?)", [req.session.UserID, req.body.AssessmentKey], (error2, result2) => {
-            if (error2) {
-              console.log(error2)
+            let resultLabel;
+            var cutOff = parseInt(Questionnaire['Cutoff']);
+            var maxMarks = parseInt(Questionnaire['TotalScore']);
+            var currentPercentage = ((totalScore / maxMarks) * 100).toFixed(0);
+            Result.SecuredPercentage = currentPercentage;
+            var message = "";
+            if (currentPercentage >= cutOff) {
+              resultLabel = "Cleared";
+              message = "Congratulations You Passed with FLying Colours";
             } else {
-              res.render('Employees/Result', { Result: Result, Role: req.session.UserRole, title: "Assessment Result", Certificate_Name: Certificate_Name,Certificate_Name_Image:tempCertificate_Name });
+              resultLabel = "Not Cleared"
+              message = "Unfortunately, you have not met the passing criteria for the exam.";
             }
+            Result.TotalScore = totalScore;
+            Result.Message = message;
+            Result.Result = resultLabel;
+            const filename = `${req.session.UserID}_${Date.now()}_${result[0]['AssessmentName']}_Report.pdf`
+            const path = `./public/Generated/AssessmentReport/${filename}`;
+            const question = Questionnaire;
+            const result1 = Result;
+            const maxScore = maxMarks;
+            //header
+            let theOutput = new PDFGenerator({ bufferPages: true, font: 'Courier' })
+            theOutput.pipe(fs.createWriteStream(path));
+            theOutput.fontSize(16).fillColor('black').font('Helvetica-Bold').text('Assessment Response', 50, 30, { align: 'center', underline: true, lineGap: 5 })
+            theOutput.image('./static/images/Quadgen_Logo.png', 20, 10, { width: 45, height: 50 }).fillColor('#000').fontSize(20)
+            //Content
+            theOutput.moveDown()
+            theOutput.fontSize(14).font('Helvetica').fillColor('black').text(`Title:${question.Title}`)
+            theOutput.moveDown()
+            theOutput.fontSize(12).fillColor('black').text(`Employee ID: ${result[0].empId}`)
+            theOutput.fontSize(12).fillColor('black').text(`Name: ${result[0].employeeName}`)
+            theOutput.fontSize(12).fillColor('black').text(`Trainer: ${result2[0].employeeName}`)
+            theOutput.fontSize(12).fillColor('black').text(`Total Score: ${question.TotalScore}`)
+            theOutput.fillColor('black').text(`Date: ${dt.format('d-m-Y H:M:S')}`)
+            theOutput.moveDown()
+            theOutput.fontSize(11).fillColor('black').text("Description:", { underline: true }).text(`${question.Description}`, { align: 'justify' })
+            theOutput.moveDown(2)
+            for (const sectionName in question) {
+              if (sectionName.startsWith('Section')) {
+                const section = question[sectionName];
+                const answers = answerScript[sectionName];
+                let sectionScore = 0;
+                theOutput.fontSize(14).fillColor('black').text(`${sectionName} : ${section.SectionName}`).fontSize(12).text(`Max Score: ${section.MaxScore}`, { align: 'right' })
+                theOutput.moveDown()
+                for (const questionName in section) {
+                  if (questionName !== 'MaxScore' && questionName !== 'SectionName') {
+                    const question = section[questionName];
+                    const answer = answers[questionName];
+                    theOutput.fontSize(14).fillColor('black').font('Helvetica-Bold').text(`${questionName}: ${question.question}`)
+                    theOutput.fillColor('black').font('Helvetica').text(`Point:${question.point}`, { align: 'right' })
+
+                    if (question['referenceImage']) {
+                      theOutput.moveDown()
+                      theOutput.image(`./public/uploads/Trainer/${question['referenceImage']}`, { fit: [400, 150], align: 'left' })
+                    }
+                    for (const key in question.options) {
+                      if (answer && question.answer == question['options'][key] && question.answer == answer.correctOption) {
+                        theOutput.fillColor('green').text(`${key + ': ' + question['options'][key]}`)
+                      } else if (answer && answer.correctOption == question['options'][key]) {
+                        theOutput.fillColor('red').text(`${key + ': ' + question['options'][key]}`)
+                      } else {
+                        theOutput.fillColor('black').text(`${key + ': ' + question['options'][key]}`)
+                      }
+                    }
+                    theOutput.fontSize(12).fillColor('blue').text(`Answer: ${question.answer}`);
+                    theOutput.moveDown()
+                  }
+                }
+              }
+            }
+            theOutput.fillColor("black").fontSize(18).text("Result:").moveDown()
+            for (const records in result1) {
+              if (records.startsWith('Section')) {
+                theOutput.fontSize(14).text(`${records}: ${result1[records]}`)
+              }
+            }
+            theOutput.fontSize(14).text(`Total Score: ${result1.TotalScore}/${maxScore}`)
+            theOutput.fontSize(14).text(`Percentage: ${result1.SecuredPercentage}%.`)
+            theOutput.text(`Remarks: ${req.body.AssessmentRemarks}`)
+            if (result1.Result == "Cleared") {
+              theOutput.fillColor('green').fontSize(14).text(`Result: CLEARED`)
+            } else if (result1.Result == "Not Cleared") {
+              theOutput.fillColor('red').fontSize(14).text(`Result: NOT CLEARED`)
+            }
+            //footer
+            const pages = theOutput.bufferedPageRange(); // => { start: 0, count: 2 }
+            for (let i = 0; i < pages.count; i++) {
+              theOutput.switchToPage(i);
+              //Footer: Add page number
+              let oldBottomMargin = theOutput.page.margins.bottom;
+              theOutput.page.margins.bottom = 0 //Dumb: Have to remove bottom margin in order to write into it
+              theOutput.fillColor('black').fontSize(10).text(`Page: ${i + 1} of ${pages.count}`, 0.5 * (theOutput.page.width - 100), theOutput.page.height - 50, {
+                width: 100,
+                align: 'center',
+                lineBreak: false,
+              });
+              theOutput.page.margins.bottom = oldBottomMargin;
+            }
+            theOutput.end()
+            let { certificatePath, Certificate_Name, tempCertificatePath, tempCertificate_Name } = "";
+            if (resultLabel == "Cleared") {
+              try {
+                const x = `${req.session.UserID}_${Date.now()}`
+                Certificate_Name = `${x}_${result[0]['AssessmentName']}_Certificate.pdf`
+                tempCertificate_Name = `${x}_${result[0]['AssessmentName']}_Certificate.png`
+
+                certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
+                tempCertificatePath = `./public/Generated/Temp/${tempCertificate_Name}`;
+
+                // Load background image
+                loadImage('Template-11.png').then((image) => {
+                  // Creating PDf Certificate
+                  let canvas = createCanvas(1280, 720, 'pdf'); // Adjust the canvas size as needed
+                  let ctx = canvas.getContext('2d');
+                  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                  ctx.font = '30px serif'; // Use your own font and size
+                  ctx.fillStyle = 'black'; // Text color
+                  // Calculate X-coordinate for horizontal alignment
+                  let Course = "Awarded to";
+                  let CourseWidth = ctx.measureText(Course).width;
+                  let Course_xPosition = (canvas.width - CourseWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Course, Course_xPosition, 270);
+                  ctx.font = '60px serif';
+                  ctx.fillStyle = '#6fbee1';
+                  let Name = `${result[0].employeeName}`;
+                  let NameWidth = ctx.measureText(Name).width;
+                  let Name_xPosition = (canvas.width - NameWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Name, Name_xPosition, 350);
+                  ctx.font = '30px serif';
+                  ctx.fillStyle = 'black';
+                  Course = `On`;
+                  CourseWidth = ctx.measureText(Course).width;
+                  Course_xPosition = (canvas.width - CourseWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Course, Course_xPosition, 420);
+                  ctx.font = '44px serif';
+                  Course = `${result[0]['Certificate_Name']}`;
+                  CourseWidth = ctx.measureText(Course).width;
+                  Course_xPosition = (canvas.width - CourseWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Course, Course_xPosition, 490);
+                  ctx.font = '30px sans';
+                  let Current_Date = new Date().toLocaleDateString('en-US').replaceAll('/', '-');
+                  Current_Date = `Dated: ${Current_Date}`
+                  let DateWidth = ctx.measureText(Current_Date).width;
+                  let Date_xPosition = (canvas.width - DateWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Current_Date, Date_xPosition, 560);
+                  const stream = canvas.createPDFStream();
+                  const outputFile = fs.createWriteStream(certificatePath);
+                  stream.pipe(outputFile);
+
+                  // Creating Image Certificate
+                  canvas = createCanvas(1280, 720); // Adjust the canvas size as needed
+                  ctx = canvas.getContext('2d');
+                  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                  ctx.font = '30px serif'; // Use your own font and size
+                  ctx.fillStyle = 'black'; // Text color
+                  // Calculate X-coordinate for horizontal alignment
+                  Course = "Awarded to";
+                  CourseWidth = ctx.measureText(Course).width;
+                  Course_xPosition = (canvas.width - CourseWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Course, Course_xPosition, 270);
+                  ctx.font = '60px serif';
+                  ctx.fillStyle = '#6fbee1';
+                  Name = `${result[0].employeeName}`;
+                  NameWidth = ctx.measureText(Name).width;
+                  Name_xPosition = (canvas.width - NameWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Name, Name_xPosition, 350);
+                  ctx.font = '30px serif';
+                  ctx.fillStyle = 'black';
+                  Course = `On`;
+                  CourseWidth = ctx.measureText(Course).width;
+                  Course_xPosition = (canvas.width - CourseWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Course, Course_xPosition, 420);
+                  ctx.font = '44px serif';
+                  Course = `${result[0]['Certificate_Name']}`;
+                  CourseWidth = ctx.measureText(Course).width;
+                  Course_xPosition = (canvas.width - CourseWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Course, Course_xPosition, 490);
+                  ctx.font = '30px sans';
+                  Current_Date = new Date().toLocaleDateString('en-US').replaceAll('/', '-');
+                  Current_Date = `Dated: ${Current_Date}`
+                  DateWidth = ctx.measureText(Current_Date).width;
+                  Date_xPosition = (canvas.width - DateWidth) / 2;
+                  // Draw the text on the certificate
+                  ctx.fillText(Current_Date, Date_xPosition, 560);
+                  const imageStream = canvas.createPNGStream();
+                  const TempOutputFile = fs.createWriteStream(tempCertificatePath);
+                  imageStream.pipe(TempOutputFile);
+                  TempOutputFile.on('finish', () => console.log('The JPEG file was created.'));
+                });
+              } catch (err) {
+                console.error('Certificate generation and saving failed:', err);
+              }
+            }
+
+            const inputData = {
+              AssessmentID: req.body.AssessmentID,
+              answerscript: JSON.stringify(answerScript),
+              obtainedmarks: JSON.stringify(Result),
+              employeeid: req.session.UserID,
+              date: CurrentDate,
+              remarks: req.body.AssessmentRemarks,
+              Result: resultLabel,
+              report: filename,
+              certificate: Certificate_Name
+            };
+            db.query('INSERT INTO responces  set?', [inputData], function (error1, result1) {
+              if (error1) {
+                console.log(error1)
+              }
+              db.query("Update repeatrequest set status=IF(status='Approved','Appeared',status) where (userID=? and assessmentkey=?)", [req.session.UserID, req.body.AssessmentKey], (error2, result2) => {
+                if (error2) {
+                  console.log(error2)
+                } else {
+                  res.render('Employees/Result', { Result: Result, Role: req.session.UserRole, title: "Assessment Result", Certificate_Name: Certificate_Name, Certificate_Name_Image: tempCertificate_Name });
+                }
+              });
+            });
           });
         });
-      });
-    });
+      }
+    })
   } else {
     res.redirect('/login');
   }

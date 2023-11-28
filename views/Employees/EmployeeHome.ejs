@@ -124,8 +124,8 @@
                             </div>
                             <div class="form-floating mb-3">
                                 <textarea class="form-control" id="requestAssessmentDesc" cols="50" spellcheck="true"
-                                    placeholder="Message"></textarea>
-                                <label for="requestAssessmentDesc">Message</label>
+                                    placeholder="Explain the reason in Detail"></textarea>
+                                <label for="requestAssessmentDesc">Message <sub>(Min of 5 words required)</sub></label>
 
                             </div>
                         </div>
@@ -238,7 +238,7 @@
                     document.getElementById("AssesmentKey").focus();
                 })
             } else {
-                alert("Invalid assessment key");
+                alert("Message is too small (Min of 5 words)");
                 $("#Requestmodel").modal('show');
             }
         });
@@ -256,15 +256,6 @@
                     //document.getElementById("AssesmentKey").focus();
                 }
             });
-        window.addEventListener('beforeunload', function (e) {
-            // Cancel the event
-            e.preventDefault(); // Necessary to work on some browsers
-            // Chrome requires this to be set
-            e.returnValue = '';
-
-            // Custom message to display
-            return 'Your custom message here'; // This message will be displayed along with the browser's default message
-        });
     </script>
 
 </html>

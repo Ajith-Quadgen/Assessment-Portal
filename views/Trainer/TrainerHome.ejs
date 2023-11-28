@@ -89,6 +89,8 @@
                                             <a href="/Trainer/viewAssessment?AssesmentKey=<%= data[index].AssesmentKey %>"
                                                 class="btn btn-outline-info btn-sm">Preview <i
                                                     class="bi bi-eye"></i></a>
+                                            <a href="/Trainer/viewProgress?AssesmentKey=<%= data[index].AssesmentKey %>"
+                                                class="btn btn-outline-secondary btn-sm">Progress <i class="bi bi-graph-up-arrow"></i></a>
                                 </div>
                             </div>
                             <% } %>
@@ -103,7 +105,7 @@
                         <% if (data[index].status=="Draft" ) { %>
                             <div class="card m-2 localCard">
                                 <div class="card-body fs-6">
-                                    <h5 class="card-title btn <% if(data[index].status=="Draft"){%>btn-warning
+                                    <h5 class="card-title btn <% if(data[index].status==" Draft"){%>btn-warning
                                         <%}else{%>btn-success
                                             text-light<%} %> rounded-pill">
                                                 <%= data[index].AssessmentName %>
@@ -123,7 +125,8 @@
                                     </p>
                                     <p class="card-text"><b>Key:</b>
                                         <span id="key">
-                                            <%=data[index].AssesmentKey%> <button type="button" data-bs-toggle="tooltip" data-bs-title="Copy the Assessment Key"
+                                            <%=data[index].AssesmentKey%> <button type="button" data-bs-toggle="tooltip"
+                                                    data-bs-title="Copy the Assessment Key"
                                                     class="btn m-0 p-0 border border-0" onclick="Copy(this)"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                         fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
@@ -135,15 +138,6 @@
                                 </div>
                                 <div
                                     class="card-footer text-body-secondary d-flex justify-content-between align-center">
-                                    <a class="btn btn-outline-primary btn-sm position-relative"
-                                        href="/Trainer/viewResponces?AssessmentID=<%= data[index].AssessmentID %>">
-                                        Responses
-                                        <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ">
-                                            <%= data[index].ResponseCount %>
-
-                                        </span>
-                                    </a>
                                     <% if (data[index].status=="Draft" ) { %>
                                         <a href="/Trainer/editAssessment?AssesmentKey=<%= data[index].AssesmentKey %>"
                                             class="btn btn-outline-secondary btn-sm">Edit <i
@@ -220,8 +214,8 @@
             window.location.replace('/')
         }
         function Copy(e) {
-            navigator.clipboard.writeText(document.getElementById("key").innerText.toString().replaceAll(" ","")).then(()=>{
-                e.innerHTML='<i class="bi bi-clipboard-check"></i>'
+            navigator.clipboard.writeText(document.getElementById("key").innerText.toString().replaceAll(" ", "")).then(() => {
+                e.innerHTML = '<i class="bi bi-clipboard-check"></i>'
             })
         }
     </script>

@@ -100,7 +100,7 @@ trainer_router.get('/viewResponces', (req, res) => {
           db.query("select * from userlogin where empId=?", [record.employeeid], function (error, resultTwo) {
             if (error) throw error;
             result = {};
-            result.SubmittedDate =record.newSubmittedDate;
+            result.SubmittedDate = record.newSubmittedDate;
             let temp = JSON.parse(record.obtainedmarks);
             result.ID = record.idresponces;
             result.EmployeeName = resultTwo[0].employeeName;
@@ -143,6 +143,22 @@ trainer_router.get('/Reappear-Request', (req, res) => {
   }
 });
 
+trainer_router.get('/viewProgress', (req, res) => {
+  if (req.session.UserID && req.session.UserRole == "Trainer") {
+    db.query("SELECT A.*,U.employeeName,Asmt.AssessmentName,date_format(A.Start_Time,'%d-%b-%y/%r') as S_Date,date_format(A.End_Time,'%d-%b-%y/%r') as E_Date  FROM assessment_session A, userlogin U,assessments Asmt  where A.Assessment_ID=? and A.User_ID=U.empId and Asmt.AssesmentKey=A.Assessment_ID;", [req.query.AssesmentKey], (error, result) => {
+      if (error) {
+        console.log(error)
+        return res.status(400).send("Internal Server Error");
+      }
+      return res.render('../views/Trainer/Progress', { Data: result, Role: req.session.UserRole, title: "Assessment Progress" });
+    });
+  } else {
+    return res.redirect('/login');
+  }
+});
+
+
+
 trainer_router.get('/TakeAssessment', (req, res) => {
   if (req.session.UserID && req.session.UserRole == "Trainer") {
     let message;
@@ -173,6 +189,7 @@ trainer_router.post('/updateAssessment', (req, res) => {
     res.json({ Message: "Access Denied" })
   }
 })
+
 trainer_router.get("*", (req, res) => {
   res.redirect('/')
 })
