@@ -266,7 +266,7 @@
       if (timeleft == 300) {
         // document.getElementById("warning_mode_message").innerHTML = "Last 5 Min Remaining"
         // $("#WarningModal").modal('show');
-        alert("Last 5 Min Remaining");
+        //alert("Last 5 Min Remaining");
       }
       if (timeleft == 1 || timeleft < 0) {
         document.getElementById("AssessmentRemarks").value = "Time Out Auto Submitting the Assessment."
@@ -281,7 +281,6 @@
     var timeLeft = 1;
     var timerId = "";
     var v = '<%= jsonData.Duration %>';
-    v = 5.1;
     setInterval(() => {
       var noattempts = document.getElementsByClassName("NoAttempts");
       for (element of noattempts) {
