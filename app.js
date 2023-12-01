@@ -94,7 +94,7 @@ app.post('/uploadImage', (req, res) => {
 // });
 
 // db.end()
-const port = 4500;
+const port = 4000;
 const host = "172.17.1.22"
 const privateKey = fs.readFileSync('key.pem');
 const certificate = fs.readFileSync('cert.pem')
