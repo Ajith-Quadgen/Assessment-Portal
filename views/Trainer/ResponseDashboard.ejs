@@ -27,7 +27,7 @@
                 </div>
                     <% } %>
                 <table class="table table-hover table-sm m-2 AVRTable rounded-4 overflow-hidden">
-                    <thead class="table-dark">
+                    <thead class="table-dark" style="font-size: 14px;">
                         <tr class="text-center">
                             <th scope="col"> Sl.No</th>
                             <th scope="col">Date/Time</th>
@@ -37,9 +37,10 @@
                             <th scope="col">Result</th>
                             <th scope="col">Remarks</th>
                             <th scope="col">Responses</th>
+                            <th scope="col">Certificate</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody style="font-size: 12px;">
                         <% if (Object.values(Data).length>0) { %>
                             <% for( let index=0; index < Object.values(Data).length; index++ ) { %>
                                 <tr class="text-center">
@@ -68,7 +69,15 @@
                                         <% if ( Data[index]["Report"]) { %>
 
                                             <a href="../../public/Generated/AssessmentReport/<%= Data[index]["Report"]
-                                                %>" target="_blank" >Download</a>
+                                                %>" target="_blank" >View</a>
+
+                                            <% } %>
+                                    </td>
+                                    <td>
+                                        <% if ( Data[index]["certificate"]) { %>
+
+                                            <a href="../../public/Generated/Certificates/<%= Data[index]["certificate"]
+                                                %>" target="_blank" >View</a>
 
                                             <% } %>
                                     </td>

@@ -201,9 +201,9 @@ api_router.get('/AssessmentDetails', (req, res) => {
                         db.query("select * from responces R,assessments A where R.employeeid=? and R.AssessmentID=A.AssessmentID and A.AssesmentKey=? and R.Result='Not Cleared'", [req.session.UserID, req.query.AssesmentKey], (error1, result1) => {
                             if (error1) throw error1
                             if (result1.length > 0) {
-                                db.query("select * from repeatrequest where userID=? and assessmentkey=? and status='Approved'", [req.session.UserID, req.query.AssesmentKey], (error2, result2) => {
+                                db.query("select * from repeatrequest where userID=? and assessmentkey=? order by id desc limit 1", [req.session.UserID, req.query.AssesmentKey], (error2, result2) => {
                                     if (error2) throw error2
-                                    if (result2.length > 0) {
+                                    if (result2.length > 0 && result2[0].status == "Approved") {
                                         db.query("select A.AssessmentName,A.Description,A.Duration,A.MaximumScore,A.CreatedBy,U.employeeName,U.role from assessments as A join userlogin as U where A.AssesmentKey=? and A.Status='Published' and A.CreatedBy=U.empId and A.CreatedBy!=? ", [req.query.AssesmentKey, req.session.UserID], function (error3, result3) {
                                             if (error3) throw error3
                                             if (result3.length > 0) {
@@ -249,8 +249,13 @@ api_router.get('/AssessmentDetails', (req, res) => {
 api_router.post('/uploadImage', (req, res) => {
     upload(req, res, function (err) {
         if (err) {
-            console.log(err);
-            res.status(400).send(err);
+            if (err.code == 'LIMIT_FILE_SIZE') {
+                res.status(500).send('File Too Large...\nUpload the Reference Image Below 500kb.');
+                return;
+            } else {
+                res.status(500).send('Internal server error');
+                return;
+            };
         } else {
             res.send(res.req.file.filename);
         }
@@ -260,10 +265,10 @@ api_router.get('/reattempt-request', (req, res) => {
     if (req.session.UserID) {
         db.query("select * from responces R,assessments A where R.employeeid=? and A.AssessmentID=R.AssessmentID and A.AssesmentKey=? and R.Result='Not Cleared'", [req.session.UserID, req.query.key], (error, result0) => {
             if (error) throw error
-
             if (result0.length > 0) {
-                db.query("select * from repeatrequest where assessmentkey=? and UserID=? and  status not in ('Rejected','Appeared')", [req.query.key, req.session.UserID], (err, result1) => {
+                db.query("select * from repeatrequest where assessmentkey=? and UserID=? and  status='Pending'", [req.query.key, req.session.UserID], (err, result1) => {
                     if (err) {
+                        console.log(err)
                         res.status(400).send("Internal server error");
                     }
                     if (result1.length > 0) {
@@ -271,6 +276,7 @@ api_router.get('/reattempt-request', (req, res) => {
                     } else {
                         db.query("select A.CreatedBy,U.employeeName from assessments as A join userlogin as U where A.AssesmentKey=? and A.CreatedBy=U.empId ", [req.query.key], function (error, result2) {
                             if (error) {
+                                console.log(error)
                                 res.status(400).send("Internal server error")
                             }
                             else if (result2.length > 0) {
@@ -281,10 +287,13 @@ api_router.get('/reattempt-request', (req, res) => {
                                     "UserID": req.session.UserID
                                 }
                                 db.query("Insert into repeatrequest  set?", [inputData], function (err, result3) {
-                                    if (err)
+                                    if (err) {
+                                        console.log(err)
                                         res.status(400).send("Internal server error");
-                                    else
+                                    }
+                                    else {
                                         res.status(200).send("Success")
+                                    }
                                 });
                             } else {
                                 res.status(400).send("Internal Server Error");
@@ -293,7 +302,7 @@ api_router.get('/reattempt-request', (req, res) => {
                     }
                 })
             } else {
-                res.status(400).send("You Have Not Yet Appeared for This Assessment, You can't submit reattempt request.")
+                res.status(400).send("You can't retake this assessment.\nContact your trainer for more Info...!");
             }
         })
     } else {
@@ -327,7 +336,7 @@ api_router.post("/UpdatePassword", (req, res) => {
                 res.status(400).send("Internal Server Error");
             if (result.changedRows > 0) {
                 req.session.destroy();
-                res.status(200).send('Updated');                
+                res.status(200).send('Updated');
             }
         });
     } else {
@@ -475,18 +484,16 @@ api_router.post('/AssessmentStarted', (req, res) => {
         db.query("insert into assessment_session (`User_ID`,`Assessment_ID`,`Start_Time`,`End_Time`) values (?,?,?,?)", [req.session.UserID, req.body.params.Ass_Id, getTimeStamp(), y], (error, result) => {
             if (error) {
                 console.log(error)
-            } else {
-                log("ok")
             }
         })
     }
 })
 api_router.post('/deleteSession', (req, res) => {
     if (req.session.UserID && req.session.UserRole == "Trainer") {
-        db.query("delete from assessment_session where idAssessment_Session=?",[req.body.params.ID],(error,result)=>{
-            if(error){
+        db.query("delete from assessment_session where idAssessment_Session=?", [req.body.params.ID], (error, result) => {
+            if (error) {
                 console.log(error)
-            }else{
+            } else {
                 return res.status(200).send("ok")
             }
         })

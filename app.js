@@ -323,15 +323,23 @@ app.post('/submit-assessment', async (req, res) => {
             Result.Message = message;
             Result.Result = resultLabel;
             const filename = `${req.session.UserID}_${Date.now()}_${result[0]['AssessmentName']}_Report.pdf`
-            const path = `./public/Generated/AssessmentReport/${filename}`;
+            const path = `./public/Generated/AssessmentReport/${filename.replace(/[^a-zA-Z0-9.&]/g, '_')}`;
             const question = Questionnaire;
             const result1 = Result;
             const maxScore = maxMarks;
             //header
             let theOutput = new PDFGenerator({ bufferPages: true, font: 'Courier' })
-            theOutput.pipe(fs.createWriteStream(path));
-            theOutput.fontSize(16).fillColor('black').font('Helvetica-Bold').text('Assessment Response', 50, 30, { align: 'center', underline: true, lineGap: 5 })
-            theOutput.image('./static/images/Quadgen_Logo.png', 20, 10, { width: 45, height: 50 }).fillColor('#000').fontSize(20)
+            try {
+              theOutput.pipe(fs.createWriteStream(path));
+              theOutput.fontSize(16).fillColor('black').font('Helvetica-Bold').text('Assessment Response', 50, 30, { align: 'center', underline: true, lineGap: 5 })
+              theOutput.image('./static/images/Quadgen_Logo.png', 20, 10, { width: 45, height: 50 }).fillColor('#000').fontSize(20)
+            } catch (error) {
+              if(error.code==="ENOENT"){
+                console.error('File not found:',path, error.message);
+              }else{
+                console.log(error);
+              }
+            }
             //Content
             theOutput.moveDown()
             theOutput.fontSize(14).font('Helvetica').fillColor('black').text(`Title:${question.Title}`)
@@ -410,14 +418,14 @@ app.post('/submit-assessment', async (req, res) => {
             if (resultLabel == "Cleared") {
               try {
                 const x = `${req.session.UserID}_${Date.now()}`
-                Certificate_Name = `${x}_${result[0]['AssessmentName']}_Certificate.pdf`
-                tempCertificate_Name = `${x}_${result[0]['AssessmentName']}_Certificate.png`
+                Certificate_Name = `${x}_${result[0]['AssessmentName'].replaceAll(" ","_")}_Certificate.pdf`
+                tempCertificate_Name = `${x}_${result[0]['AssessmentName'].replaceAll(" ","_")}_Certificate.png`
 
                 certificatePath = `./public/Generated/Certificates/${Certificate_Name}`;
                 tempCertificatePath = `./public/Generated/Temp/${tempCertificate_Name}`;
 
                 // Load background image
-                loadImage('Template-11.png').then((image) => {
+                loadImage('New_Template.png').then((image) => {
                   // Creating PDf Certificate
                   let canvas = createCanvas(1280, 720, 'pdf'); // Adjust the canvas size as needed
                   let ctx = canvas.getContext('2d');

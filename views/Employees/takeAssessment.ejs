@@ -148,8 +148,7 @@
                                   <div>
                                     <img id="uploadedImage" class="rounded img-thumbnail"
                                       src="../../public/uploads/Trainer/<%= question['referenceImage'] %>"
-                                      alt="Uploaded Image" height="100" width="100" onclick="ExpandImage(this)"
-                                      data-bs-toggle="modal" data-bs-target="#Image_Model" />
+                                      alt="Uploaded Image" height="100" width="100" onclick="ExpandImage(this)" data-bs-toggle="modal" data-bs-target="#Image_Model" />
                                   </div>
                                   <% } %>
                                     <div class="d-flex flex-column fs-5">
@@ -186,7 +185,7 @@
     </div>
     <!-- Model for Image -->
     <div class="modal fade m-0 p-0" id="Image_Model" tabindex="-1" aria-labelledby="Image_Model" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -197,6 +196,34 @@
         </div>
       </div>
     </div>
+    <style>
+      .pop-up {
+        height: auto;
+        width: 60%;
+        background: #fff;
+        z-index: 11;
+        border-radius: 5px;
+        box-shadow: 0 0 20px #000;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .pop-up span {
+        border-radius: 3em;
+        margin-left: 95%;
+        background: #212121;
+        color: #fff;
+        font-size: 1.25em;
+        padding: 0.4em 0.7em;
+        cursor: pointer;
+      }
+    </style>
+    <!-- <div id="Image_Model" class="pop-up">
+      <span>x</span>
+      <img class="img-fluid" id="img01" alt="Reference Image">
+    </div> -->
 
 
     <!--Static Modal -->
@@ -242,6 +269,10 @@
 </body>
 <%- include('../partials/dependencies-js') %>
   <script>
+    $('.pop-up').hide(0);
+    $('.pop-up span').click(function () {
+      $('.pop-up').hide(0);
+    });
     document.getElementById("answerScript").addEventListener('submit', (e) => {
       e.preventDefault();
       SubmitAssessment();
@@ -326,51 +357,56 @@
             ValidScreen = false;
           }
         };
-
+        const containerDiv = document.getElementById('main');
+        const modalDiv = document.getElementById('Image_Model');
+        // Add event listeners to the container div and modal div to handle mouse leave events
+        containerDiv.addEventListener('mouseleave', handleMouseLeave);
+        modalDiv.addEventListener('mouseleave', handleMouseLeave);
         //Function to Monitor the Mouse Leaving out of the Assessment page
-        document.getElementById("main").addEventListener('mouseleave', () => {
-          if (NoOfAttempts > 1) {
-            NoOfAttempts--;
-            document.getElementById("warning_mode_message").innerHTML = "You are outside the assessment boundary. Please refrain from doing so in the future.\nClick the <b>Abort</b> button to stop the automatic submission.";
-            timeLeft = 20;
-            clearTimeout(timerId);
-            timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
-            $("#WarningModal").modal('show');
-          } else {
-            document.getElementById("AssessmentRemarks").value = "Auto Submitted Assessment (Moved Outside the assessment boundary)."
-            document.getElementById("warning_mode_message").innerText = "You are outside the assessment boundary.\nThe assessment will be automatically submitted in 30 seconds.";
-            timeLeft = 30;
-            clearTimeout(timerId);
-            timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
-            document.getElementById("abortbtn").setAttribute("id", "")
-            $("#WarningModal").modal('show');
+        function handleMouseLeave(event) {
+          if (!containerDiv.contains(event.relatedTarget) && !modalDiv.contains(event.relatedTarget)) {
+            if (NoOfAttempts > 1) {
+              NoOfAttempts--;
+              document.getElementById("warning_mode_message").innerHTML = "You are outside the assessment boundary. Please refrain from doing so in the future.\nClick the <b>Abort</b> button to stop the automatic submission.";
+              timeLeft = 20;
+              clearTimeout(timerId);
+              timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+              $("#WarningModal").modal('show');
+            } else {
+              document.getElementById("AssessmentRemarks").value = "Auto Submitted Assessment (Moved Outside the assessment boundary)."
+              document.getElementById("warning_mode_message").innerText = "You are outside the assessment boundary.\nThe assessment will be automatically submitted in 30 seconds.";
+              timeLeft = 30;
+              clearTimeout(timerId);
+              timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+              document.getElementById("abortbtn").setAttribute("id", "")
+              $("#WarningModal").modal('show');
+            }
           }
-
-        });
+        };
 
         //Function to Monitor the Switching the Tab and Window.
-        $(window).on('blur', function () {
-          if (NoOfAttempts > 1) {
-            NoOfAttempts--;
-            document.getElementById("warning_mode_message").innerHTML = "The system has detected tab switching. If this action recurs, the assignment will be automatically submitted. To prevent this, click the <b>Abort</b> button to stop the automatic submission."
-            document.getElementById("AssessmentRemarks").value = "Switching of Tab's detected."
-            timeLeft = 20;
-            clearTimeout(timerId);
-            timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
-            $("#WarningModal").modal('show');
-          } else {
-            document.getElementById("AssessmentRemarks").value = "Switching of Tab's detected."
-            document.getElementById("warning_mode_message").innerText = "Switching of Tab's detected.\nAuto Submitting the Assessment in 5 Seconds...!";
-            timeLeft = 5;
-            if (timerId) {
-              clearTimeout(timerId);
-            }
-            timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
-            document.getElementById("warning_modal_footer").style.display = "none"
-            $("#WarningModal").modal('show');
-          }
+        // $(window).on('blur', function () {
+        //   if (NoOfAttempts > 1) {
+        //     NoOfAttempts--;
+        //     document.getElementById("warning_mode_message").innerHTML = "The system has detected tab switching. If this action recurs, the assignment will be automatically submitted. To prevent this, click the <b>Abort</b> button to stop the automatic submission."
+        //     document.getElementById("AssessmentRemarks").value = "Switching of Tab's detected."
+        //     timeLeft = 20;
+        //     clearTimeout(timerId);
+        //     timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+        //     $("#WarningModal").modal('show');
+        //   } else {
+        //     document.getElementById("AssessmentRemarks").value = "Switching of Tab's detected."
+        //     document.getElementById("warning_mode_message").innerText = "Switching of Tab's detected.\nAuto Submitting the Assessment in 5 Seconds...!";
+        //     timeLeft = 5;
+        //     if (timerId) {
+        //       clearTimeout(timerId);
+        //     }
+        //     timerId = setInterval(countdown, 1000, document.getElementById("Waring_Timer"));
+        //     document.getElementById("warning_modal_footer").style.display = "none"
+        //     $("#WarningModal").modal('show');
+        //   }
 
-        });
+        // });
 
         //Function to Monitor the Minimizing and Maximizing the Screen. 
         addEventListener("resize", (event) => {

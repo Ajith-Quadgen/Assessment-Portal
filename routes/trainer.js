@@ -110,6 +110,7 @@ trainer_router.get('/viewResponces', (req, res) => {
               result.SecuredPercentage = temp.SecuredPercentage;
               result.Result = temp.Result;
               result.Report = record.report;
+              result.certificate = record.certificate;
               if (record.remarks) {
                 result.Remarks = record.remarks;
               } else {
@@ -117,8 +118,6 @@ trainer_router.get('/viewResponces', (req, res) => {
               }
               ConsolidatedResponces.push(result);
               
-            }else{
-              console.log(record.employeeid)
             }
             counter++;
             if (counter === resultOne.length) {

@@ -378,7 +378,8 @@ function uploadImage(e, NewLocFieldId, NewImageLoc) {
       displayImage(file, NewImageLoc);
     })
     .catch(error => {
-      console.error(error);
+      alert(error.response.data);
+      e.value=""
     })
 }
 
