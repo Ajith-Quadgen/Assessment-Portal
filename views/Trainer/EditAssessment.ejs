@@ -135,7 +135,7 @@
                                                         onchange="uploadImage(this,'section[<%- sectionCounter  %>]question[<%- i %>][referenceImage]','section[<%- sectionCounter  %>]question[<%- i %>][uploadedImage]');">
                                                       <input type="hidden"
                                                         name="section[<%- sectionCounter  %>]question[<%- i %>][referenceImage]"
-                                                        id="section[<%- sectionCounter  %>]question[<%- i %>][referenceImage]"
+                                                        id="section[<%- sectionCounter  %>]question[<%- i %>][referenceImage]" value="<%= question['referenceImage']%>"
                                                         readonly>
                                                     </div>
                                                     <div data-bs-toggle="tooltip"
@@ -204,9 +204,9 @@
                                                                   <% } %>
                                                   </div>
                                                   <input type="hidden" name="section[1]question[<%-i%>][answer]"
-                                                    id="answer<%-i%>" value="<%-question['answer']%>" readonly>
+                                                    id="answer<%-i%>" value="<%=question['answer']%>" readonly>
                                                   <input type="hidden" name="section[1]question[<%-i%>][questionType]"
-                                                    id="questionType<%-i%>" value="<%- question ['type']%>" readonly>
+                                                    id="questionType<%-i%>" value="<%= question ['type']%>" readonly>
                                                 </div>
                                               </div>
                                               <% i++ } %>
@@ -247,16 +247,16 @@
 
 
                 <!-- Model for Image -->
-                <div class="modal fade " id="Image_Model" tabindex="-1" aria-labelledby="Image_Model"
+                <div class="modal m-0 p-0" id="Image_Model" tabindex="-1" aria-labelledby="Image_Model"
                   aria-hidden="true">
-                  <div class="modal-dialog modal-xl modal-dialog-centered">
+                  <div class="modal-dialog">
                     <div class="modal-content">
                       <div class="modal-header">
                         <h5>Reference Image</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
                       <div class="modal-body">
-                        <img class="img-fluid" id="img01" alt="Reference Image">
+                        <img class="img-fluid" id="img01" alt="Reference Image" style="max-width: 70dvw;max-height: 70dvh; object-fit: contain;">
                       </div>
                     </div>
                   </div>

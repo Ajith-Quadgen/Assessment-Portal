@@ -170,7 +170,11 @@
                                           <div class="p-1">
                                             <input type="radio" class="form-check-input"
                                               name="<%=sectionName+'_'+questionName%>"
-                                              value="<%= question['options'][key] %>" required>
+                                              value="<%= question['options'][key] %>" 
+                                              <% if
+                                                                (question['options'][key]==question['answer']) { %>
+                                                              checked <% } %>
+                                                               required>
                                             <label class="form-label" for="<%=sectionName+'_'+questionName %>">
                                               <%= question['options'][key] %>
                                             </label>

@@ -155,7 +155,7 @@ app.get('/login', (req, res) => {
 
 app.post('/AuthenticateLogin', (req, res) => {
   var UserInfo = req.body;
-  db.query("select * from userlogin where empId=? and password=? and status='Active'", [UserInfo.Username, UserInfo.password], function (error, result) {
+  db.query("select * from userlogin where binary empId=? and binary password=? and status='Active'", [UserInfo.Username, UserInfo.password], function (error, result) {
     if (error) console.log(error);
     if (result.length > 0) {
       db.query("update userlogin set lastSeen=? where empId=?", [CurrentDate, result[0].empId], function (error, result) {
@@ -521,7 +521,7 @@ app.post('/submit-assessment', async (req, res) => {
               report: filename,
               certificate: Certificate_Name
             };
-            db.query('INSERT INTO responces  set?', [inputData], function (error1, result1) {
+            db.query('INSERT INTO responces  set ?', [inputData], function (error1, result1) {
               if (error1) {
                 console.log(error1)
               }
@@ -544,7 +544,7 @@ app.post('/submit-assessment', async (req, res) => {
 
 app.get('/changePassword', async (req, res) => {
   if (req.session.UserID) {
-    res.render('ChangePassword', { userName: req.session.UserName, Role: req.session.UserRole, title: "Change Password" })
+    res.render('ChangePassword', { userName: req.session.UserName, Role: req.session.UserRole, title: "Password Management" })
   } else {
     res.redirect('/login');
   }

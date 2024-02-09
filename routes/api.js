@@ -326,7 +326,8 @@ api_router.post("/UpdatePassword", (req, res) => {
             if (err)
                 res.status(400).send("Internal Server Error");
             if (result.changedRows > 0) {
-                res.status(200).send('Updated');
+                req.session.destroy();
+                res.status(200).send('Updated');                
             }
         });
     } else {

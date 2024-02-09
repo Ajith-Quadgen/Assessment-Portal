@@ -97,23 +97,29 @@ trainer_router.get('/viewResponces', (req, res) => {
       if (resultOne.length > 0) {
         let counter = 0;
         resultOne.forEach(record => {
+
           db.query("select * from userlogin where empId=?", [record.employeeid], function (error, resultTwo) {
             if (error) throw error;
             result = {};
-            result.SubmittedDate = record.newSubmittedDate;
-            let temp = JSON.parse(record.obtainedmarks);
-            result.ID = record.idresponces;
-            result.EmployeeName = resultTwo[0].employeeName;
-            result.SecuredMarks = temp.TotalScore;
-            result.SecuredPercentage = temp.SecuredPercentage;
-            result.Result = temp.Result;
-            result.Report = record.report;
-            if (record.remarks) {
-              result.Remarks = record.remarks;
-            } else {
-              result.Remarks = "";
+            if(resultTwo.length){
+              result.SubmittedDate = record.newSubmittedDate;
+              let temp = JSON.parse(record.obtainedmarks);
+              result.ID = record.idresponces;
+              result.EmployeeName = resultTwo[0].employeeName;
+              result.SecuredMarks = temp.TotalScore;
+              result.SecuredPercentage = temp.SecuredPercentage;
+              result.Result = temp.Result;
+              result.Report = record.report;
+              if (record.remarks) {
+                result.Remarks = record.remarks;
+              } else {
+                result.Remarks = "";
+              }
+              ConsolidatedResponces.push(result);
+              
+            }else{
+              console.log(record.employeeid)
             }
-            ConsolidatedResponces.push(result);
             counter++;
             if (counter === resultOne.length) {
               res.render("../views/Trainer/ResponseDashboard", { Data: ConsolidatedResponces, AssID: req.query.AssessmentID, Role: req.session.UserRole, title: "Assessment Responses" });
